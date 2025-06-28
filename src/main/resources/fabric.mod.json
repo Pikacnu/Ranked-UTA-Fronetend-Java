@@ -1,0 +1,41 @@
+{
+	"schemaVersion": 1,
+	"id": "uta2",
+	"version": "${version}",
+	"name": "UTA2",
+	"description": "This is an example description! Tell everyone what your mod is about!",
+	"authors": [
+		"Me!"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/uta2/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.pikacnu.UTA2"
+		],
+		"client": [
+			"com.pikacnu.UTA2Client"
+		]
+	},
+	"mixins": [
+		"uta2.mixins.json",
+		{
+			"config": "uta2.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.16.14",
+		"minecraft": "~1.21.6",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
