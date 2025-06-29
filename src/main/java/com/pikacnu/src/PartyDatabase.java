@@ -103,19 +103,17 @@ public class PartyDatabase {
      * 解散隊伍。
      */
     public void disbandParty() {
-      synchronized (PartyDatabase.class) {
-        for (PartyPlayer member : partyMembers) {
-          PlayerData player = PlayerDatabase.getPlayerData(member.uuid);
-          if (player != null) {
-            player.isInParty = false;
-            player.partyId = null; // Clear party ID
-            PlayerDatabase.updatePlayerData(player);
-          }
+      for (PartyPlayer member : partyMembers) {
+        PlayerData player = PlayerDatabase.getPlayerData(member.uuid);
+        if (player != null) {
+          player.isInParty = false;
+          player.partyId = null; // Clear party ID
+          PlayerDatabase.updatePlayerData(player);
         }
-        partyMembers.clear();
-        partyLeaderUUID = null; // Clear party leader UUID
-        removeParty(partyId); // Remove the party from the database
       }
+      partyMembers.clear();
+      partyLeaderUUID = null; // Clear party leader UUID
+      removeParty(partyId); // Remove the party from the database
     }
 
     /**
@@ -123,7 +121,7 @@ public class PartyDatabase {
      */
     public void updateToServer(Action action) {
       Payload payload = new Payload();
-      payload.data = this; // Assuming Payload can hold PartyData directly
+      payload.party = this; // Assuming Payload can hold PartyData directly
       Message message = new Message(action, WebSocket.serverSessionId, payload);
       WebSocket.sendMessage(message); // Send the updated party data to the server
     }
@@ -139,81 +137,82 @@ public class PartyDatabase {
      * 加入玩家至隊伍。
      */
     public PartyResultMessage addPlayer(String uuid) {
-      synchronized (PartyDatabase.class) {
-        if (isInParty(uuid)) {
-          return PartyResultMessage.PLAYER_ALREADY_IN_PARTY; // Player is already in the party
-        }
-        if (getPartySize() >= 4) {
-          return PartyResultMessage.PARTY_FULL; // Assuming this means party is full
-        }
-        PlayerData player = PlayerDatabase.getPlayerData(uuid);
-        if (player == null) {
-          return PartyResultMessage.PLAYER_NOT_FOUND; // Player not found in player database
-        }
-
-        int min = minimumScore();
-        int max = maximumScore();
-        if (!(player.score >= min - 300 && player.score <= max + 300)) {
-          UTA2.LOGGER.info(
-              "Player " + player.minecraftId + " with score " + player.score + " is not within the acceptable range " +
-                  "of the party's score range (" + min + " - " + max + ")");
-          return PartyResultMessage.PLAYER_SCORE_NOT_WITHIN_RANGE; // Player's score is not within the acceptable range
-        }
-
-        partyMembers.add(new PartyPlayer(uuid, player.minecraftId, player.score));
-        player.isInParty = true;
-        player.partyId = partyId;
-        PlayerDatabase.updatePlayerData(player);
-
-        updateToServer(); // Update the party data to the server
-
-        return PartyResultMessage.PARTY_JOINED; // Successfully added player to the party
+      if (isInParty(uuid)) {
+        return PartyResultMessage.PLAYER_ALREADY_IN_PARTY; // Player is already in the party
       }
+      if (getPartySize() >= 4) {
+        return PartyResultMessage.PARTY_FULL; // Assuming this means party is full
+      }
+      PlayerData player = PlayerDatabase.getPlayerData(uuid);
+      if (player == null) {
+        return PartyResultMessage.PLAYER_NOT_FOUND; // Player not found in player database
+      }
+
+      if (!(Math.abs(player.score - minimumScore()) < 300 || Math.abs(maximumScore() - player.score) < 300)) {
+        UTA2.LOGGER.info(
+            "Player " + player.minecraftId + " with score " + player.score + " is not within the acceptable range " +
+                "of the party's score range (" + minimumScore() + " - " + maximumScore() + ")");
+        return PartyResultMessage.PLAYER_SCORE_NOT_WITHIN_RANGE; // Player's score is not within the acceptable range
+      }
+
+      partyMembers.add(new PartyPlayer(uuid, player.minecraftId, player.score));
+      player.isInParty = true;
+      player.partyId = partyId;
+      PlayerDatabase.updatePlayerData(player);
+
+      updateToServer(); // Update the party data to the server
+
+      return PartyResultMessage.PARTY_JOINED; // Successfully added player to the party
     }
 
     /**
      * 移除隊伍中的玩家。
      */
     public PartyResultMessage removePlayer(String uuid) {
-      synchronized (PartyDatabase.class) {
-        if (!isInParty(uuid)) {
-          return PartyResultMessage.PLAYER_NOT_IN_PARTY; // Player is not in the party
-        }
-
-        if (partyMembers.size() <= 1) {
-          this.disbandParty(); // If only one member left, disband the party
-          updateToServer(Action.PARTY_DISBANDED); // Notify server about disbanding
-          return PartyResultMessage.PARTY_DISBANDED; // Successfully disbanded the party
-        }
-
-        PartyPlayer playerToRemove = null;
-        for (PartyPlayer member : partyMembers) {
-          if (member.uuid.equals(uuid)) {
-            playerToRemove = member;
-            break;
-          }
-        }
-        if (playerToRemove == null) {
-          return PartyResultMessage.PLAYER_NOT_FOUND; // Player not found in party members
-        }
-
-        partyMembers.remove(playerToRemove);
-
-        if (partyLeaderUUID.equals(uuid) && !partyMembers.isEmpty()) {
-          this.partyLeaderUUID = partyMembers.get(0).uuid; // Set the first member as the new leader
-        }
-
-        PlayerData player = PlayerDatabase.getPlayerData(uuid);
-        if (player != null) {
-          player.isInParty = false;
-          player.partyId = null; // Clear party ID
-          PlayerDatabase.updatePlayerData(player);
-        }
-
-        updateToServer(); // Update the party data to the server after removing the player
-
-        return PartyResultMessage.PARTY_LEFT; // Successfully removed player from the party
+      if (!isInParty(uuid)) {
+        return PartyResultMessage.PLAYER_NOT_IN_PARTY; // Player is not in the party
       }
+
+      if (partyMembers.size() <= 2) {
+        this.disbandParty(); // If only one member left, disband the party
+        updateToServer(Action.PARTY_DISBANDED); // Notify server about disbanding
+        return PartyResultMessage.PARTY_DISBANDED; // Successfully disbanded the party
+      }
+
+      PartyPlayer playerToRemove = null;
+      for (PartyPlayer member : partyMembers) {
+        if (member.uuid.equals(uuid)) {
+          playerToRemove = member;
+          break;
+        }
+      }
+      if (playerToRemove == null) {
+        return PartyResultMessage.PLAYER_NOT_FOUND; // Player not found in party members
+      }
+
+      partyMembers.remove(playerToRemove);
+
+      if (partyLeaderUUID.equals(uuid)) {
+        this.partyLeaderUUID = partyMembers.get(0).uuid; // Set the first member as the new leader
+      }
+
+      PlayerData player = PlayerDatabase.getPlayerData(uuid);
+      if (player != null) {
+        player.isInParty = false;
+        player.partyId = null; // Clear party ID
+        PlayerDatabase.updatePlayerData(player);
+      }
+
+      if (partyMembers.isEmpty()) {
+        disbandParty(); // If no members left, disband the party
+        updateToServer(Action.PARTY_DISBANDED); // Notify server about disbanding
+        removeParty(partyId); // Remove the party from the database
+        return PartyResultMessage.PARTY_DISBANDED; // Successfully disbanded the party
+      }
+
+      updateToServer(); // Update the party data to the server after removing the player
+
+      return PartyResultMessage.PARTY_LEFT; // Successfully removed player from the party
     }
   }
 
@@ -268,32 +267,29 @@ public class PartyDatabase {
    * 建立新隊伍。
    */
   public static PartyData createParty(String leaderUuid) {
-    synchronized (PartyDatabase.class) {
-      PartyData newParty = new PartyData();
-      newParty.partyId = (int) System.currentTimeMillis();
-      newParty.partyMembers = new ArrayList<>();
-      newParty.partyLeaderUUID = leaderUuid;
-      PlayerData leader = PlayerDatabase.getPlayerData(leaderUuid);
-      if (leader == null) {
-        return null;
-      }
-      leader.isInParty = true;
-      leader.partyId = newParty.partyId; // Set party ID for the leader
-      PlayerDatabase.updatePlayerData(leader);
-      newParty.partyMembers.add(new PartyPlayer(leaderUuid, leader.minecraftId, leader.score));
-      newParty.updateToServer();
-      partyList.add(newParty);
-      return newParty;
+    PartyData newParty = new PartyData();
+    newParty.partyId = (int) System.currentTimeMillis();
+    newParty.partyMembers = new ArrayList<>();
+    newParty.partyLeaderUUID = leaderUuid;
+    PlayerData leader = PlayerDatabase.getPlayerData(leaderUuid);
+    if (leader == null) {
+      return null;
     }
+    leader.isInParty = true;
+    leader.partyId = newParty.partyId; // Set party ID for the leader
+    PlayerDatabase.updatePlayerData(leader);
+
+    newParty.partyMembers.add(new PartyPlayer(leaderUuid, leader.minecraftId, leader.score));
+    newParty.updateToServer();
+    partyList.add(newParty);
+    return newParty;
   }
 
   /**
    * 移除指定 ID 的隊伍。
    */
   public static void removeParty(int partyId) {
-    synchronized (PartyDatabase.class) {
-      partyList.removeIf(party -> party.partyId == partyId);
-    }
+    partyList.removeIf(party -> party.partyId == partyId);
   }
 
   /**
@@ -454,7 +450,6 @@ public class PartyDatabase {
    * 隊伍操作結果訊息。
    */
   public enum PartyResultMessage {
-    PARTY_CREATED("Party created successfully"),
     PARTY_JOINED("Joined party successfully"),
     PARTY_LEFT("Left party successfully"),
     PARTY_DISBANDED("Party disbanded successfully"),
@@ -474,9 +469,11 @@ public class PartyDatabase {
     PLAYER_ALREADY_IN_PARTY("Player is already in a party");
 
     private final String message;
+
     PartyResultMessage(String message) {
       this.message = message;
     }
+
     public String getMessage() {
       return message;
     }

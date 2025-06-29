@@ -47,11 +47,9 @@ public class UTA2 implements ModInitializer {
 	public void onInitialize() {
 		LOGGER.info("Hello Fabric world!");
 
-		// 註冊伺服器生命週期事件
 		ServerLifecycleEvents.SERVER_STARTED.register(this::onServerStarted);
 		ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStopping);
 
-		// 註冊玩家連線事件
 		ServerPlayConnectionEvents.JOIN.register(this::onPlayerJoin);
 		ServerPlayConnectionEvents.DISCONNECT.register(this::onPlayerDisconnect);
 		Command.init();

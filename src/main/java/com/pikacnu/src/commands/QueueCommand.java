@@ -14,6 +14,7 @@ import com.pikacnu.src.PartyDatabase.PartyData;
 import com.pikacnu.src.json.Action;
 import com.pikacnu.src.json.Message;
 import com.pikacnu.src.json.Payload;
+import com.pikacnu.src.json.Payload.QueueData;
 import com.pikacnu.src.json.Queue;
 
 public class QueueCommand implements ICommand {
@@ -91,8 +92,9 @@ public class QueueCommand implements ICommand {
 
                     context.getSource().sendFeedback(() -> Text.literal("You have joined the queue as " + action + "."),
                         false);
-                    Queue queueData = new Queue(action, context.getSource().getPlayer().getUuidAsString());
-                    payload.data = queueData;
+                    QueueData queueData = new QueueData(action,
+                        context.getSource().getPlayer().getUuidAsString());
+                    payload.queue = queueData;
                   }
                   Message wsMessage = new Message(Action.QUEUE, WebSocket.serverSessionId, payload);
                   WebSocket.sendMessage(wsMessage);

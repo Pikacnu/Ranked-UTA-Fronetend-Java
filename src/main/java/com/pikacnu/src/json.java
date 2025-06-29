@@ -1,5 +1,7 @@
 package com.pikacnu.src;
 
+import java.util.ArrayList;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.pikacnu.src.PartyDatabase.PartyData;
@@ -37,7 +39,8 @@ public class json {
     GET_PLAYER_DATA("get_player_data"),
     PARTY("party"),
     PARTY_DISBANDED("party_disbanded"),
-    QUEUE("queue");
+    QUEUE("queue"),
+    QUEUE_MATCH("queue_match");
 
     /**
      * 動作對應的字串值。
@@ -531,7 +534,7 @@ public class json {
     public PlayerData player;
     public PartyData party;
 
-    class teamData {
+    public static class teamData {
       public String team;
       public String[] uuids;
 
@@ -540,6 +543,22 @@ public class json {
     }
 
     public teamData[] teamData;
+
+    public static class QueueData {
+      public String queue_name;
+      public String uuid;
+      public ArrayList<ArrayList<PartyData>> parties;
+
+      public QueueData() {
+      }
+
+      public QueueData(String queue_name, String uuid) {
+        this.queue_name = queue_name;
+        this.uuid = uuid;
+      }
+    }
+
+    public QueueData queue;
 
     public Payload() {
     }

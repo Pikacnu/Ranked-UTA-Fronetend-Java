@@ -20,7 +20,7 @@ public class PartyCommand implements ICommand {
             .then(
                 CommandManager.argument("action", StringArgumentType.string())
                     .suggests((context, builder) -> {
-                      String[] actions = { "leave", "invite", "accept", "reject", "list" };
+                      String[] actions = { "leave", "invite", "accept", "reject", "list", "disband" };
                       for (String action : actions) {
                         builder.suggest(action);
                       }
@@ -63,6 +63,16 @@ public class PartyCommand implements ICommand {
                           context.getSource()
                               .sendMessage(Text.literal(partyList.toString()).withColor(0x00FF00));
                           return 1;
+                        case "disband":
+                          party = PartyDatabase.getPartyData(playerUuid);
+                          if (party == null) {
+                            context.getSource()
+                                .sendError(Text.literal("You are not in a party!").withColor(0xFF0000));
+                            return 0;
+                          }
+                          party.disbandParty();
+                          message = PartyDatabase.PartyResultMessage.PARTY_DISBANDED;
+                          break;
                         default:
                           context.getSource()
                               .sendError(Text.literal("Invalid action! Use 'leave' without target.")
@@ -129,14 +139,12 @@ public class PartyCommand implements ICommand {
                                 context.getSource()
                                     .sendError(Text.literal("You can't invite while in queue.").withColor(0xFF0000));
                               }
-
                               if (!party.isPartyLeader(playerUuid)) {
                                 context.getSource()
                                     .sendError(Text.literal("You must be the party leader to invite players.")
                                         .withColor(0xFF0000));
                                 return 0;
                               }
-
                               message = PartyDatabase.createInvitation(party.partyId, playerUuid, target);
                               break;
                             case "accept":

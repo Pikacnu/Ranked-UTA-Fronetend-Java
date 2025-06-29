@@ -10,9 +10,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.brigadier.ParseResults;
-import com.pikacnu.src.json.Action;
-import com.pikacnu.src.json.Message;
-import com.pikacnu.src.json.Payload;
 import com.pikacnu.src.json.Payload.teamData;
 import com.pikacnu.src.PlayerDatabase.PlayerData;
 import com.pikacnu.src.json.*;
@@ -300,6 +297,9 @@ public class WebSocket {
         } else {
           UTA2.LOGGER.error("Received GET_PLAYER_DATA message with invalid payload");
         }
+        break;
+      case Action.QUEUE_MATCH:
+        
         break;
       default:
         UTA2.LOGGER.info("Received unknown action: " + action);
