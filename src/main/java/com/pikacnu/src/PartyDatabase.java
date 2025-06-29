@@ -450,23 +450,23 @@ public class PartyDatabase {
    * 隊伍操作結果訊息。
    */
   public enum PartyResultMessage {
-    PARTY_JOINED("Joined party successfully"),
-    PARTY_LEFT("Left party successfully"),
-    PARTY_DISBANDED("Party disbanded successfully"),
-    PARTY_NOT_FOUND("Party not found"),
-    PARTY_FULL("Party is full"),
-    PLAYER_NOT_IN_PARTY("Player is not in a party"),
-    PLAYER_NOT_FOUND("Player not found"),
-    PLAYER_NOT_LEADER("You are not the party leader"),
-    PLAYER_SCORE_NOT_WITHIN_RANGE("Player's score is not within the acceptable range (±300)"),
-    PLAYER_INVITATION_SENT("Invitation sent successfully"),
-    PLAYER_INVITATION_ACCEPTED("Invitation accepted successfully"),
-    PLAYER_INVITATION_REJECTED("Invitation rejected successfully"),
-    PLAYER_INVITATION_ALREADY_EXISTS("Player already has an invitation"),
-    INVITATION_NOT_FOUND("Invitation not found"),
-    INVITATION_EXPIRED("Invitation has expired"),
-    PARTY_IN_QUEUE("Party is in queue"),
-    PLAYER_ALREADY_IN_PARTY("Player is already in a party");
+    PARTY_JOINED("{target}加入了隊伍"),
+    PARTY_LEFT("{target}離開了隊伍"),
+    PARTY_DISBANDED("隊伍已解散"),
+    PARTY_NOT_FOUND("無效的隊伍"),
+    PARTY_FULL("隊伍已滿！"),
+    PLAYER_NOT_IN_PARTY("{target}尚未在隊伍中"),
+    PLAYER_NOT_FOUND("{target}未在線"),
+    PLAYER_NOT_LEADER("你不是隊長！"),
+    PLAYER_SCORE_NOT_WITHIN_RANGE("邀請失敗，{target}的評級與你差距過大"),
+    PLAYER_INVITATION_SENT("已邀請{target}，他們可以在30秒內接受組隊邀請"),
+    PLAYER_INVITATION_ACCEPTED("你接受了{inviter}的組隊邀請"),
+    PLAYER_INVITATION_REJECTED("你拒絕了{inviter}的組隊邀請"),
+    PLAYER_INVITATION_ALREADY_EXISTS("{target}已有組隊邀請"),
+    INVITATION_NOT_FOUND("無效的組隊邀請"),
+    INVITATION_EXPIRED("{inviter}的組隊邀請已過期"),
+    PARTY_IN_QUEUE("隊伍匹配中..."),
+    PLAYER_ALREADY_IN_PARTY("{target}已在隊伍中");
 
     private final String message;
 

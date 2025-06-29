@@ -11,6 +11,7 @@ import com.pikacnu.UTA2;
 import com.pikacnu.src.PartyDatabase;
 import com.pikacnu.src.PartyDatabase.PartyData;
 import com.pikacnu.src.PartyDatabase.PartyInvition;
+import com.pikacnu.src.PartyDatabase.PartyResultMessage;
 
 public class PartyCommand implements ICommand {
   @Override
@@ -42,7 +43,8 @@ public class PartyCommand implements ICommand {
                           PartyData party = PartyDatabase.getPartyData(playerUuid);
                           if (party == null) {
                             context.getSource()
-                                .sendError(Text.literal("You are not in a party!").withColor(0xFF0000));
+                                .sendError(Text.literal(PartyResultMessage.PLAYER_NOT_IN_PARTY.toString())
+                                    .withColor(0xFF0000));
                             return 0;
                           }
                           message = party.removePlayer(playerUuid);
@@ -51,10 +53,11 @@ public class PartyCommand implements ICommand {
                           party = PartyDatabase.getPartyData(playerUuid);
                           if (party == null) {
                             context.getSource()
-                                .sendError(Text.literal("You are not in a party!").withColor(0xFF0000));
+                                .sendError(Text.literal(PartyResultMessage.PLAYER_NOT_IN_PARTY.toString())
+                                    .withColor(0xFF0000));
                             return 0;
                           }
-                          StringBuilder partyList = new StringBuilder("Party Members: ");
+                          StringBuilder partyList = new StringBuilder("在隊伍中的玩家: ");
                           synchronized (party.partyMembers) {
                             for (PartyDatabase.PartyPlayer member : party.partyMembers) {
                               partyList.append(member.minecraftId).append(", ");
@@ -67,7 +70,8 @@ public class PartyCommand implements ICommand {
                           party = PartyDatabase.getPartyData(playerUuid);
                           if (party == null) {
                             context.getSource()
-                                .sendError(Text.literal("You are not in a party!").withColor(0xFF0000));
+                                .sendError(Text.literal(PartyResultMessage.PLAYER_NOT_IN_PARTY.toString())
+                                    .withColor(0xFF0000));
                             return 0;
                           }
                           party.disbandParty();
@@ -75,18 +79,19 @@ public class PartyCommand implements ICommand {
                           break;
                         default:
                           context.getSource()
-                              .sendError(Text.literal("Invalid action! Use 'leave' without target.")
+                              .sendError(Text.literal("無效的動作！請使用 'leave' 而不需要目標。")
                                   .withColor(0xFF0000));
                           return 0;
                       }
                       if (message == null) {
                         context.getSource()
-                            .sendError(Text.literal("Failed to execute party action!").withColor(0xFF0000));
+                            .sendError(Text.literal("執行隊伍動作失敗！").withColor(0xFF0000));
                         return 0;
                       }
 
                       context.getSource()
-                          .sendMessage(Text.literal(message.getMessage()).withColor(0x00FF00));
+                          .sendMessage(Text.literal(message.getMessage().replace("{target}",
+                              context.getSource().getPlayer().getDisplayName().toString())).withColor(0x00FF00));
                       return 1;
                     })
                     .then(CommandManager.argument("target", EntityArgumentType.player())
@@ -95,7 +100,7 @@ public class PartyCommand implements ICommand {
                           String target = EntityArgumentType.getPlayer(context, "target").getUuidAsString();
                           if (action == null || action.isEmpty() || target == null || target.isEmpty()) {
                             context.getSource()
-                                .sendError(Text.literal("Action and target cannot be empty!").withColor(0xFF0000));
+                                .sendError(Text.literal("動作和目標不能為空！").withColor(0xFF0000));
                             return 0;
                           }
 
@@ -108,21 +113,21 @@ public class PartyCommand implements ICommand {
                               if (invitation != null) {
                                 context.getSource()
                                     .sendError(
-                                        Text.literal("You have already received an invitation. Please reject it first.")
+                                        Text.literal("您已經收到邀請。請先拒絕它後再邀請。")
                                             .withColor(0xFF0000));
                                 return 0;
                               }
 
                               if (target.equals(playerUuid)) {
                                 context.getSource()
-                                    .sendError(Text.literal("You cannot invite yourself!").withColor(0xFF0000));
+                                    .sendError(Text.literal("你不能邀請你自己！").withColor(0xFF0000));
                                 return 0;
                               }
 
                               PartyData targetParty = PartyDatabase.getPartyData(target);
                               if (targetParty != null) {
                                 context.getSource()
-                                    .sendError(Text.literal("Player is already in a party!").withColor(0xFF0000));
+                                    .sendError(Text.literal("該玩家已在隊伍中!").withColor(0xFF0000));
                                 return 0;
                               }
 
@@ -131,17 +136,17 @@ public class PartyCommand implements ICommand {
                                 party = PartyDatabase.createParty(playerUuid);
                                 if (party == null) {
                                   context.getSource()
-                                      .sendError(Text.literal("Failed to create party!").withColor(0xFF0000));
+                                      .sendError(Text.literal("建立派對失敗!").withColor(0xFF0000));
                                   return 0;
                                 }
                               }
                               if (party.isInQueue) {
                                 context.getSource()
-                                    .sendError(Text.literal("You can't invite while in queue.").withColor(0xFF0000));
+                                    .sendError(Text.literal("你無法在隊列時邀請。").withColor(0xFF0000));
                               }
                               if (!party.isPartyLeader(playerUuid)) {
                                 context.getSource()
-                                    .sendError(Text.literal("You must be the party leader to invite players.")
+                                    .sendError(Text.literal("你需要是派對隊長才可以邀請玩家")
                                         .withColor(0xFF0000));
                                 return 0;
                               }
@@ -157,7 +162,7 @@ public class PartyCommand implements ICommand {
                               context.getSource()
                                   .sendError(Text
                                       .literal(
-                                          "Invalid action! Use 'join', 'invite', 'accept', or 'reject' with target.")
+                                          "無效的動作！請使用 'invite'、'accept' 或 'reject' 並指定目標。")
                                       .withColor(0xFF0000));
                               return 0;
                           }
@@ -171,12 +176,15 @@ public class PartyCommand implements ICommand {
 
                           if (message == null) {
                             context.getSource()
-                                .sendError(Text.literal("Failed to execute party action!").withColor(0xFF0000));
+                                .sendError(Text.literal("執行隊伍動作失敗！").withColor(0xFF0000));
                             return 0;
                           }
 
                           context.getSource()
-                              .sendMessage(Text.literal(message.getMessage()).withColor(0x00FF00));
+                              .sendMessage(Text.literal(message.getMessage().replaceAll("{target}",
+                                  EntityArgumentType.getPlayer(context, "target").getDisplayName().toString())
+                                  .replaceAll("{inviter}", context.getSource().getPlayer().getDisplayName().toString()))
+                                  .withColor(0x00FF00));
                           return 1;
                         }))));
   }
