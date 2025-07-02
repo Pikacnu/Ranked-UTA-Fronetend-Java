@@ -16,10 +16,7 @@
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"com.pikacnu.UTA2"
-		],
-		"client": [
-			"com.pikacnu.UTA2Client"
+			"com.uta2.UTA2"
 		]
 	},
 	"mixins": [

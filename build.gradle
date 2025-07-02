@@ -42,6 +42,9 @@ dependencies {
 	// JSON parsing library
 	implementation "com.google.code.gson:gson:2.10.1"
 	
+	// WebSocket client library
+	implementation "org.java-websocket:Java-WebSocket:1.5.3"
+	
 }
 
 processResources {
