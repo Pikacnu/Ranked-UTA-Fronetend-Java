@@ -478,4 +478,14 @@ public class PartyDatabase {
       return message;
     }
   }
+
+  public static void updatePartyData(PartyData party) {
+    for (int i = 0; i < partyList.size(); i++) {
+      if (partyList.get(i).partyId == party.partyId) {
+        partyList.set(i, party);
+        return;
+      }
+    }
+    partyList.add(party); // If not found, add the new party
+  }
 }

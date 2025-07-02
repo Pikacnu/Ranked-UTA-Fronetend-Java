@@ -20,10 +20,6 @@ public class WsStatusCommand implements ICommand {
 
                 context.getSource().sendMessage(
                     Text.literal("WebSocket Status: " + status).withColor(color));
-
-                String url = "ws://" + WebSocket.host + ":" + WebSocket.port + WebSocket.path;
-                context.getSource().sendMessage(
-                    Text.literal("Target URL: " + url).withColor(0xFFFFFF));
               } catch (Exception e) {
                 e.printStackTrace();
               }

@@ -40,7 +40,15 @@ public class json {
     PARTY("party"),
     PARTY_DISBANDED("party_disbanded"),
     QUEUE("queue"),
-    QUEUE_MATCH("queue_match");
+    QUEUE_LEAVE("queue_leave"),
+    QUEUE_MATCH("queue_match"),
+    WHILELIST("whitelist"),
+    WHILELIST_CHANGE("whitelist_change"),
+    WHILELIST_REMOVE("whitelist_remove"),
+    WHILELIST_CHECK("whitelist_check"),
+    TRANSFER("transfer"),
+    PLAYER_ONLINE_STATUS("player_online_status"),
+    ;
 
     /**
      * 動作對應的字串值。
@@ -534,6 +542,19 @@ public class json {
     public PlayerData player;
     public PartyData party;
 
+    public static class LobbyData {
+      public boolean isLobby;
+
+      public LobbyData() {
+      }
+
+      public LobbyData(boolean isLobby) {
+        this.isLobby = isLobby;
+      }
+    }
+
+    public LobbyData lobby;
+
     public static class teamData {
       public String team;
       public String[] uuids;
@@ -559,6 +580,58 @@ public class json {
     }
 
     public QueueData queue;
+
+    public static class WhitelistEntry {
+      public String uuid;
+      public String minecraftId;
+
+      public WhitelistEntry() {
+      }
+
+      public WhitelistEntry(String uuid, String minecraftId) {
+        this.uuid = uuid;
+        this.minecraftId = minecraftId;
+      }
+    }
+
+    public ArrayList<WhitelistEntry> whitelist;
+
+    public static class PlayerOnlineStatus {
+      public ArrayList<String> uuids;
+
+      public static enum Connection {
+        CONNECTED, DISCONNECTED
+      }
+
+      public Connection connection;
+
+      public PlayerOnlineStatus() {
+      }
+
+      public PlayerOnlineStatus(ArrayList<String> uuids, Connection connection) {
+        this.uuids = uuids;
+        this.connection = connection;
+      }
+    }
+
+    public PlayerOnlineStatus playerOnlineStatus;
+
+    public static class TransferData {
+      public String targetServer;
+      public Integer targetPort;
+      public ArrayList<String> uuids;
+
+      public TransferData() {
+      }
+
+      public TransferData(String targetServer, Integer port, ArrayList<String> uuids) {
+        this.targetServer = targetServer;
+        this.targetPort = port;
+        this.uuids = new ArrayList<>();
+      }
+    }
+
+    public TransferData transferData;
 
     public Payload() {
     }
@@ -591,9 +664,6 @@ public class json {
     }
   }
 
-  /**
-   * 表示伺服器傳輸的訊息格式。
-   */
   public static class Message {
     public Action action;
     public String sessionId;
@@ -616,7 +686,6 @@ public class json {
       this(action, sessionId, null);
     }
 
-    // 從 JSON 字串解析 Message
     public static Message fromJson(String jsonString) {
       try {
         return gson.fromJson(jsonString, Message.class);
@@ -625,9 +694,7 @@ public class json {
       }
     }
 
-    // 轉換為 JSON 字串
     public String toJson() {
-      // Create a copy of this message with action converted to string
       Message copy = new Message();
       copy.action = this.action;
       copy.sessionId = this.sessionId;

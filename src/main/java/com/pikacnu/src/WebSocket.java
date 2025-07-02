@@ -3,6 +3,7 @@ package com.pikacnu.src;
 import java.net.URI;
 import java.net.http.*;
 import java.util.ArrayList;
+import java.util.UUID;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Executors;
@@ -10,16 +11,23 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.brigadier.ParseResults;
+import com.pikacnu.src.json.Payload.LobbyData;
+import com.pikacnu.src.json.Payload.QueueData;
+import com.pikacnu.src.json.Payload.WhitelistEntry;
 import com.pikacnu.src.json.Payload.teamData;
+import com.pikacnu.src.PartyDatabase.PartyData;
 import com.pikacnu.src.PlayerDatabase.PlayerData;
 import com.pikacnu.src.json.*;
+import com.pikacnu.Config;
 import com.pikacnu.UTA2;
 
+import net.minecraft.network.packet.s2c.common.ServerTransferS2CPacket;
 import net.minecraft.scoreboard.ScoreHolder;
 import net.minecraft.scoreboard.ScoreboardObjective;
 import net.minecraft.scoreboard.ServerScoreboard;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 
 public class WebSocket {
@@ -29,9 +37,6 @@ public class WebSocket {
   private static final AtomicBoolean isConnecting = new AtomicBoolean(false);
   private static final AtomicBoolean shouldReconnect = new AtomicBoolean(true);
 
-  public static Integer port = 8080;
-  public static String host = "localhost";
-  public static String path = "/ws";
   private static final int RECONNECT_DELAY_SECONDS = 5;
   public static String serverSessionId;
   public static MinecraftServer minecraftServer;
@@ -69,7 +74,7 @@ public class WebSocket {
     isConnecting.set(true);
 
     HttpClient client = HttpClient.newHttpClient();
-    String url = "ws://" + host + ":" + port + path;
+    String url = "ws://" + Config.host + ":" + Config.port + Config.path;
 
     UTA2.LOGGER.info("Connecting to WebSocket: " + url);
 
@@ -148,7 +153,15 @@ public class WebSocket {
 
   private static void parseAndHandleMessage(String messageText) {
     try {
+      if (messageText == null || messageText.isEmpty()) {
+        UTA2.LOGGER.error("Received empty or null message");
+        return;
+      }
       Message message = Message.fromJson(messageText);
+      if (message == null || message.action == null) {
+        UTA2.LOGGER.error("Failed to parse message: " + messageText);
+        return;
+      }
 
       Action action = message.action;
       Status status = message.status;
@@ -178,10 +191,18 @@ public class WebSocket {
 
   private static void handleIncomingMessage(Action action, Status status, String sessionId, Payload payload) {
     switch (action) {
+      case Action.ERROR:
+        String errorMessage = payload != null ? payload.message : "Unknown error";
+        UTA2.LOGGER.error("Received error message: " + errorMessage);
+        break;
       case Action.HANDSHAKE:
         if (!(sessionId == null || sessionId.isEmpty())) {
           serverSessionId = sessionId;
           UTA2.LOGGER.info("Handshake received, server ID: " + sessionId);
+          Payload handshakePayload = new Payload();
+          handshakePayload.lobby = new LobbyData(Config.isLobby);
+          Message handshakeMessage = new Message(Action.HANDSHAKE, serverSessionId, handshakePayload);
+          sendMessage(handshakeMessage);
         } else {
           UTA2.LOGGER.error("Handshake message missing serverId");
         }
@@ -260,7 +281,12 @@ public class WebSocket {
                 UTA2.LOGGER.warn("Received empty UUID in team join message for team: " + team.team);
                 continue;
               }
-              String ScoreboardName = minecraftServer.getPlayerManager().getPlayer(uuid).getNameForScoreboard();
+              ServerPlayerEntity player = minecraftServer.getPlayerManager().getPlayer(uuid);
+              if (player == null) {
+                UTA2.LOGGER.warn("Player not found or not online for UUID: " + uuid + " in team join message");
+                continue;
+              }
+              String ScoreboardName = player.getNameForScoreboard();
               ServerScoreboard scoreboardManager = minecraftServer.getScoreboard();
               ScoreHolder holder = scoreboardManager.getKnownScoreHolders().stream()
                   .filter(h -> h.getNameForScoreboard().equals(ScoreboardName))
@@ -268,10 +294,10 @@ public class WebSocket {
                   .orElse(null);
               ScoreboardObjective objective = scoreboardManager.getObjectives().stream()
                   .filter(obj -> obj.getName().equals("tid")).findFirst().orElse(null);
-              scoreboardManager.getOrCreateScore(holder, objective).setScore(teamId);
-              if (holder == null) {
-                UTA2.LOGGER.warn("No ScoreHolder found for UUID: " + uuid + " in team join message");
-                continue;
+              if (holder != null && objective != null) {
+                scoreboardManager.getOrCreateScore(holder, objective).setScore(teamId);
+              } else {
+                UTA2.LOGGER.warn("No ScoreHolder or objective found for UUID: " + uuid + " in team join message");
               }
             }
           }
@@ -279,10 +305,6 @@ public class WebSocket {
           UTA2.LOGGER.error("Received team join message with no data");
         }
 
-        break;
-      case Action.ERROR:
-        String errorMessage = payload != null ? payload.message : "Unknown error";
-        UTA2.LOGGER.error("Received error message: " + errorMessage);
         break;
       case Action.GET_PLAYER_DATA:
         if (payload != null && payload.player instanceof PlayerData) {
@@ -299,8 +321,100 @@ public class WebSocket {
         }
         break;
       case Action.QUEUE_MATCH:
-        
+        if (payload != null && payload.queue != null) {
+          QueueData queueData = payload.queue;
+          ArrayList<ArrayList<PartyData>> parties = queueData.parties;
+          if (parties == null || parties.isEmpty()) {
+            UTA2.LOGGER.error("Received QUEUE_MATCH message with empty or null parties");
+            return;
+          }
+          parties.stream().forEach(partyList -> {
+            if (partyList == null || partyList.isEmpty()) {
+              UTA2.LOGGER.warn("Received QUEUE_MATCH message with empty party list");
+              return;
+            }
+            partyList.forEach(party -> {
+              if (party == null) {
+                UTA2.LOGGER.warn("Received QUEUE_MATCH message with null party");
+                return;
+              }
+              PartyDatabase.removeParty(party.partyId);
+              party.partyMembers.stream().forEach(member -> {
+                if (member == null || member.uuid == null || member.uuid.isEmpty()) {
+                  UTA2.LOGGER.warn("Received QUEUE_MATCH message with invalid party member UUID");
+                  return;
+                }
+                PlayerData playerData = PlayerDatabase.getPlayerData(member.uuid);
+                if (playerData != null) {
+                  playerData.partyId = null; // Clear party ID for the player
+                  PlayerDatabase.updatePlayerData(playerData);
+
+                  ServerPlayerEntity sendTarget = minecraftServer.getPlayerManager()
+                      .getPlayer(UUID.fromString(member.uuid));
+                  sendTarget.networkHandler.sendPacket(new ServerTransferS2CPacket("rutagame1.pikacnu.com", 25565));
+
+                } else {
+                  UTA2.LOGGER.warn("No player data found for UUID: " + member.uuid);
+                }
+              });
+            });
+          });
+
+          UTA2.LOGGER.info("Received QUEUE_MATCH action: " + action);
+          // Handle queue logic here, e.g., add to queue, remove from queue, etc.
+        } else {
+          UTA2.LOGGER.error("Received QUEUE_MATCH message with invalid payload");
+        }
         break;
+
+      case Action.WHILELIST_CHANGE:
+        if (payload == null || payload.whitelist == null) {
+          UTA2.LOGGER.error("Received WHILELIST_CHANGE message with invalid payload");
+          return;
+        }
+        if (payload.whitelist.isEmpty()) {
+          WhiteListManager.clearWhitelist();
+          return;
+        }
+        for (WhitelistEntry player : payload.whitelist) {
+          if (player.uuid == null || player.uuid.isEmpty() || player.minecraftId == null
+              || player.minecraftId.isEmpty()) {
+            UTA2.LOGGER.warn("Received WHILELIST_CHANGE message with empty UUID");
+            continue;
+          }
+          try {
+            WhiteListManager.addPlayerToWhitelist(player.uuid, player.minecraftId);
+          } catch (Exception e) {
+            UTA2.LOGGER.error("Failed to add player to whitelist: " + e.getMessage());
+          }
+        }
+        WhiteListManager.kickPlayerNotInWhitelist();
+        break;
+
+      case Action.PLAYER_ONLINE_STATUS:
+        break;
+
+      case Action.TRANSFER:
+        if (payload == null || payload.transferData == null) {
+          UTA2.LOGGER.error("Received TRANSFER message with invalid payload");
+          return;
+        }
+        String targetServer = payload.transferData.targetServer;
+        Integer targetPort = payload.transferData.targetPort;
+        if (targetServer == null || targetServer.isEmpty() || targetPort == null) {
+          UTA2.LOGGER.error("Received TRANSFER message with invalid target server or port");
+          return;
+        }
+        payload.transferData.uuids.stream().forEach(uuid -> {
+          ServerPlayerEntity sendTarget = minecraftServer.getPlayerManager()
+              .getPlayer(UUID.fromString(uuid));
+          if (sendTarget != null) {
+            sendTarget.networkHandler.sendPacket(new ServerTransferS2CPacket(targetServer, targetPort));
+          } else {
+            UTA2.LOGGER.warn("No player found for UUID: " + uuid);
+          }
+        });
+
       default:
         UTA2.LOGGER.info("Received unknown action: " + action);
     }

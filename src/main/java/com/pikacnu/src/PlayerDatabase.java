@@ -23,6 +23,15 @@ public class PlayerDatabase {
       this.partyId = partyId;
     }
 
+    public PlayerData(String uuid) {
+      this.uuid = uuid;
+      this.minecraftId = null; // Default to null if not provided
+      this.score = null; // Default to null if not provided
+      this.isInParty = false; // Default to false if not provided
+      this.isInQueue = false; // Default to false if not provided
+      this.partyId = null; // Default to null if not provided
+    }
+
     public PlayerData(String uuid, String minecraftId, Integer score) {
       this(uuid, minecraftId, score, false, false, null);
     }
