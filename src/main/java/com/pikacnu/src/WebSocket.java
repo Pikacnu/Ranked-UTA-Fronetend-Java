@@ -339,24 +339,6 @@ public class WebSocket {
                 return;
               }
               PartyDatabase.removeParty(party.partyId);
-              party.partyMembers.stream().forEach(member -> {
-                if (member == null || member.uuid == null || member.uuid.isEmpty()) {
-                  UTA2.LOGGER.warn("Received QUEUE_MATCH message with invalid party member UUID");
-                  return;
-                }
-                PlayerData playerData = PlayerDatabase.getPlayerData(member.uuid);
-                if (playerData != null) {
-                  playerData.partyId = null; // Clear party ID for the player
-                  PlayerDatabase.updatePlayerData(playerData);
-
-                  ServerPlayerEntity sendTarget = minecraftServer.getPlayerManager()
-                      .getPlayer(UUID.fromString(member.uuid));
-                  sendTarget.networkHandler.sendPacket(new ServerTransferS2CPacket("rutagame1.pikacnu.com", 25565));
-
-                } else {
-                  UTA2.LOGGER.warn("No player data found for UUID: " + member.uuid);
-                }
-              });
             });
           });
 

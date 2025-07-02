@@ -113,6 +113,7 @@ public class PartyDatabase {
       }
       partyMembers.clear();
       partyLeaderUUID = null; // Clear party leader UUID
+      updateToServer(Action.PARTY_DISBANDED); // Notify server about disbanding
       removeParty(partyId); // Remove the party from the database
     }
 

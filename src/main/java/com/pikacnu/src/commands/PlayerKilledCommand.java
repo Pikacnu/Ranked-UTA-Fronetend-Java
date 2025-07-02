@@ -38,7 +38,12 @@ public class PlayerKilledCommand implements ICommand {
                                 String target = EntityArgumentType.getEntity(context, "attack_target").getUuid()
                                     .toString();
                                 String attackerType = StringArgumentType.getString(context, "attacker_type");
-                                String attacker = EntityArgumentType.getEntity(context, "attacker").getUuidAsString();
+                                String attacker;
+                                try {
+                                  attacker = EntityArgumentType.getEntity(context, "attacker").getUuidAsString();
+                                } catch (Exception e) {
+                                  attacker = "none"; // Default to "none" if attacker not found
+                                }
 
                                 if (attacker == null || attacker.isEmpty()) {
                                   context.getSource().sendError(

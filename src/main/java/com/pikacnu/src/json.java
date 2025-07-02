@@ -47,6 +47,10 @@ public class json {
     WHILELIST_REMOVE("whitelist_remove"),
     WHILELIST_CHECK("whitelist_check"),
     TRANSFER("transfer"),
+
+    PLAYER_INFO("player_info"),
+    OUTPUT_WIN("output_win"),
+
     PLAYER_ONLINE_STATUS("player_online_status"),
     ;
 
