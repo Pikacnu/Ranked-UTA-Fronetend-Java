@@ -64,41 +64,129 @@ public class WebSocket {
     private static void handleMessage(String message) {
         try {
             JsonObject json = gson.fromJson(message, JsonObject.class);
-            String action = json.get("action").getAsString();
-
-            switch (action) {
-                case "UPDATE_PLAYER_DATA":
-                    handleUpdatePlayerData(json);
-                    break;
-                case "UPDATE_PARTY_DATA":
-                    handleUpdatePartyData(json);
-                    break;
-                case "WHITELIST_ADD":
-                    handleWhitelistAdd(json);
-                    break;
-                case "WHITELIST_REMOVE":
-                    handleWhitelistRemove(json);
-                    break;
-                case "SEND_TO_SERVER":
-                    handleSendToServer(json);
-                    break;
-                case "LOBBY_DATA":
-                    handleLobbyData(json);
-                    break;
-                case "PLAYER_ONLINE_STATUS":
-                    handlePlayerOnlineStatus(json);
-                    break;
-                case "RUN_COMMAND":
-                    handleRunCommand(json);
-                    break;
-                case "GET_DATA_CALLBACK":
-                    handleGetDataCallback(json);
-                    break;
-                default:
-                    System.out.println("[UTA2] Unknown action: " + action);
+            String action = null;
+            
+            // 檢查是否為 pikacnu 格式（包含 sessionId 和 payload）
+            boolean isPikacnuFormat = json.has("sessionId") && json.has("payload");
+            
+            if (isPikacnuFormat) {
+                // pikacnu 格式：從 action 字段直接獲取
+                action = json.get("action").getAsString();
+                // 取得 payload 用於進一步處理
+                JsonObject payload = json.getAsJsonObject("payload");
+                handlePikacnuMessage(action, payload, json);
+            } else {
+                // 舊的 UTA2 格式：直接從 action 字段獲取
+                action = json.get("action").getAsString();
+                handleLegacyMessage(action, json);
             }
         } catch (Exception e) {
             System.err.println("[UTA2] Error handling message: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 處理 pikacnu 格式的消息
+     */
+    private static void handlePikacnuMessage(String action, JsonObject payload, JsonObject fullMessage) {
+        System.out.println("[UTA2] Handling pikacnu format message: " + action);
+        
+        switch (action) {
+            case "player_online_status":
+                handlePikacnuPlayerOnlineStatus(payload);
+                break;
+            case "connect":
+            case "disconnect":
+            case "command":
+            case "error":
+            case "kill":
+            case "damage":
+            case "game_status":
+            case "map_choose":
+            case "storage_data":
+            case "clientId":
+            case "team_info":
+            case "team_join":
+            case "heartbeat":
+            case "handshake":
+            case "request_data":
+            case "get_player_data":
+            case "party":
+            case "party_disbanded":
+            case "queue":
+            case "queue_leave":
+            case "queue_match":
+            case "whitelist":
+            case "whitelist_change":
+            case "whitelist_remove":
+            case "whitelist_check":
+            case "transfer":
+                System.out.println("[UTA2] Received pikacnu action: " + action + " (not yet implemented)");
+                break;
+            default:
+                System.out.println("[UTA2] Unknown pikacnu action: " + action);
+        }
+    }
+
+    /**
+     * 處理舊的 UTA2 格式消息
+     */
+    private static void handleLegacyMessage(String action, JsonObject json) {
+        switch (action) {
+            case "UPDATE_PLAYER_DATA":
+                handleUpdatePlayerData(json);
+                break;
+            case "UPDATE_PARTY_DATA":
+                handleUpdatePartyData(json);
+                break;
+            case "WHITELIST_ADD":
+                handleWhitelistAdd(json);
+                break;
+            case "WHITELIST_REMOVE":
+                handleWhitelistRemove(json);
+                break;
+            case "SEND_TO_SERVER":
+                handleSendToServer(json);
+                break;
+            case "LOBBY_DATA":
+                handleLobbyData(json);
+                break;
+            case "PLAYER_ONLINE_STATUS":
+                handlePlayerOnlineStatus(json);
+                break;
+            case "RUN_COMMAND":
+                handleRunCommand(json);
+                break;
+            case "GET_DATA_CALLBACK":
+                handleGetDataCallback(json);
+                break;
+            default:
+                System.out.println("[UTA2] Unknown legacy action: " + action);
+        }
+    }
+
+    /**
+     * 處理 pikacnu 格式的玩家線上狀態
+     */
+    private static void handlePikacnuPlayerOnlineStatus(JsonObject payload) {
+        try {
+            if (payload.has("playerOnlineStatus")) {
+                JsonObject playerOnlineStatus = payload.getAsJsonObject("playerOnlineStatus");
+                
+                if (playerOnlineStatus.has("uuids") && playerOnlineStatus.has("connection")) {
+                    var uuids = playerOnlineStatus.getAsJsonArray("uuids");
+                    String connection = playerOnlineStatus.get("connection").getAsString();
+                    
+                    System.out.println("[UTA2] Player online status update:");
+                    System.out.println("  Connection: " + connection);
+                    System.out.println("  UUIDs: " + uuids.toString());
+                    
+                    // 在這裡可以添加具體的處理邏輯
+                    // 例如更新本地玩家狀態緩存等
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("[UTA2] Error handling pikacnu player online status: " + e.getMessage());
         }
     }
 
