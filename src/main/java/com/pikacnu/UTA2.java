@@ -86,7 +86,7 @@ public class UTA2 implements ModInitializer {
 	}
 
 	private void onPlayerLoad(ServerPlayerEntity player) {
-		LOGGER.info("Player loaded: " + player.getName().getString());
+		LOGGER.info("Player loaded: {}", player.getName().getString());
 		PlayerOnlineChecker.addPlayer(player.getUuid().toString());
 	}
 
