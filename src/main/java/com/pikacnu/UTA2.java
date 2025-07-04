@@ -4,20 +4,18 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.pikacnu.src.Command;
-import com.pikacnu.src.PartyDatabase;
+import com.pikacnu.src.*;
 import com.pikacnu.src.websocket.WebSocketClient;
-import com.pikacnu.src.WhiteListManager;
-import com.pikacnu.src.PartyDatabase.PartyData;
-import com.pikacnu.src.PlayerDatabase;
-import com.pikacnu.src.PlayerOnlineChecker;
 
 /**
  * UTA2 主模組，負責初始化與伺服器事件註冊。
@@ -26,22 +24,21 @@ public class UTA2 implements ModInitializer {
 	public static final String MOD_ID = "uta2";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 	private static MinecraftServer server;
-	private final ScheduledExecutorService executorService = java.util.concurrent.Executors.newScheduledThreadPool(1);
+	private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
 
 	@Override
 	public void onInitialize() {
 		LOGGER.info("Hello Fabric world!");
 
-		ServerLifecycleEvents.SERVER_STARTED.register(this::onServerStarted);
-		ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStopping);
+		ServerLifecycleEvents.SERVER_STARTED.register(this::onServerStarted); //註冊開始事件
+		ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStopping); //註冊關閉事件
 
-		ServerPlayConnectionEvents.JOIN.register(this::onPlayerJoin);
-		ServerPlayConnectionEvents.DISCONNECT.register(this::onPlayerDisconnect);
+		ServerPlayConnectionEvents.JOIN.register(this::onPlayerJoin); //註冊加入
+		ServerPlayConnectionEvents.DISCONNECT.register(this::onPlayerDisconnect); //註冊離開
 
 		Command.init();
-		executorService.scheduleAtFixedRate(() -> {
-			PartyDatabase.schedulePartyInvitationCleanup();
-		}, 0, 1, java.util.concurrent.TimeUnit.SECONDS);
+		executorService.scheduleAtFixedRate(PartyDatabase::schedulePartyInvitationCleanup,
+				0, 1, TimeUnit.SECONDS); //每秒執行
 	}
 
 	private void onServerStarted(MinecraftServer server) {
@@ -66,39 +63,52 @@ public class UTA2 implements ModInitializer {
 		PlayerOnlineChecker.scheduler.shutdownNow();
 	}
 
-	private void onPlayerJoin(ServerPlayNetworkHandler handler, PacketSender sender, MinecraftServer server) {
-		LOGGER.info("Player joined: " + handler.getPlayer().getName().getString());
-		if (Config.isLobby) {
-			PlayerDatabase.addPlayerData(
-					new PlayerDatabase.PlayerData(handler.getPlayer().getUuid().toString(),
-							handler.getPlayer().getName().getString(), 0));
-			PlayerDatabase.updatePlayerDataFromServer(handler.getPlayer().getUuid().toString(),
-					handler.getPlayer().getName().getString());
-		} else {
-			PlayerOnlineChecker.addPlayer(handler.getPlayer().getUuid().toString());
+	private void onPlayerJoin(ServerPlayNetworkHandler handler, PacketSender sender, MinecraftServer server)
+	{
+		PlayerEntity player = handler.getPlayer();
+		String playerName = player.getName().getString();
+		String playerUUID = player.getUuidAsString();
+		LOGGER.info("Player joined: {}", playerName);
+
+		if (!Config.isLobby)
+		{
+			PlayerOnlineChecker.addPlayer(playerUUID);
+			return;
 		}
+
+		PlayerDatabase.addPlayerData(new PlayerDatabase.PlayerData(playerUUID, playerName, 0));
+		PlayerDatabase.updatePlayerDataFromServer(playerUUID, playerName);
 	}
 
-	private void onPlayerDisconnect(ServerPlayNetworkHandler handler, MinecraftServer server) {
-		LOGGER.info("Player disconnected: " + handler.getPlayer().getName().getString());
-		if (Config.isLobby) {
-			PlayerDatabase.removePlayerData(handler.getPlayer().getUuid().toString());
-			PartyData party = PartyDatabase.getPartyData(handler.getPlayer().getUuid().toString());
-			if (party != null) {
-				party.removePlayer(handler.getPlayer().getUuid().toString());
-				if (party.partyMembers.isEmpty()) {
-					PartyDatabase.removeParty(party.partyId);
-					LOGGER.info("Party removed due to no members left");
-				} else {
-					LOGGER.info("Player removed from party: " + handler.getPlayer().getName().getString());
-				}
-			} else {
-				LOGGER.info("No party found for player: " + handler.getPlayer().getName().getString());
-			}
-		} else {
-			PlayerOnlineChecker.removePlayer(handler.getPlayer().getUuid().toString());
+	private void onPlayerDisconnect(ServerPlayNetworkHandler handler, MinecraftServer server)
+	{
+		PlayerEntity player = handler.getPlayer();
+		String playerUUID = player.getUuidAsString();
+		String playerName = player.getName().getString();
+		LOGGER.info("Player disconnected: {}", playerName);
+
+		if (!Config.isLobby) //遊戲伺服器
+		{
+			PlayerOnlineChecker.removePlayer(playerUUID);
+			return;
 		}
 
+		//大廳伺服器
+		PlayerDatabase.removePlayerData(playerUUID);
+		PartyDatabase.PartyData party = PartyDatabase.getPartyData(playerUUID);
+		if (party == null)
+		{
+			LOGGER.info("No party found for player: {}", playerName);
+			return;
+		}
+
+		party.removePlayer(playerUUID);
+		LOGGER.info("Player removed from party: {}", party.partyId);
+		if (party.partyMembers.isEmpty())
+		{
+			PartyDatabase.removeParty(party.partyId);
+			LOGGER.info("Party removed due to no members left");
+		}
 	}
 
 	public static MinecraftServer getServer() {
