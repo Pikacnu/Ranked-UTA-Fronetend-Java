@@ -16,6 +16,8 @@ import com.pikacnu.src.json.data.Message;
 import com.pikacnu.src.json.data.Payload;
 import com.pikacnu.src.json.data.Payload.QueueData;
 
+import java.util.ArrayList;
+
 public class QueueCommand implements ICommand {
   @Override
   public void register(CommandDispatcher<ServerCommandSource> dispatcher) {
@@ -59,7 +61,7 @@ public class QueueCommand implements ICommand {
                   // Create queue object
                   if (action.equals("leave")) {
                     context.getSource().sendFeedback(() -> Text.literal("您已離開佇列。"), false);
-                    QueueData queueData = new QueueData("leave", context.getSource().getPlayer().getUuidAsString());
+                    QueueData queueData = new QueueData("leave", context.getSource().getPlayer().getUuidAsString(), new ArrayList<>());
                     PartyData party = PartyDatabase.getPartyData(context.getSource().getPlayer().getUuidAsString());
                     if (party != null) {
                       party.isInQueue = false;
@@ -102,9 +104,7 @@ public class QueueCommand implements ICommand {
 
                     context.getSource().sendFeedback(() -> Text.literal("您已加入 " + action + " 佇列。"),
                         false);
-                    QueueData queueData = new QueueData(action,
-                        context.getSource().getPlayer().getUuidAsString());
-                    payload.queue = queueData;
+                    payload.queue = new QueueData(action, context.getSource().getPlayer().getUuidAsString(), new ArrayList<>());
                   }
                   Action actionType;
                   if (action.equals("leave")) {

@@ -4,51 +4,37 @@ package com.pikacnu.src.json;
  * 定義所有可能的擊殺類型。
  */
 public enum KillType {
-  PLAYER("player"),
-  SPARE("spare"),
-  VOID("void"),
-  MELT("melt");
+	PLAYER,
+	SPARE,
+	VOID,
+	MELT;
 
-  private final String stringValue;
+	/**
+	 * 從字串獲取對應的 enum 值（不區分大小寫）
+	 */
+	public static KillType fromString(String text) {
+		if (text == null)
+			throw new IllegalArgumentException("No enum constant for null string");
 
-  KillType(String stringValue) {
-    this.stringValue = stringValue;
-  }
+		for (KillType type : KillType.values())
+			if (type.name().equalsIgnoreCase(text))
+				return type;
 
-  public String getString() {
-    return stringValue;
-  }
+		throw new IllegalArgumentException("No enum constant for string: " + text);
+	}
 
-  /**
-   * 從字串獲取對應的 enum 值（不區分大小寫）
-   */
-  public static KillType fromString(String text) {
-    if (text != null) {
-      for (KillType type : KillType.values()) {
-        if (type.stringValue.equalsIgnoreCase(text)) {
-          return type;
-        }
-      }
-    }
-    throw new IllegalArgumentException("No enum constant for string: " + text);
-  }
+	/**
+	 * 從字串獲取對應的 enum 值，如果找不到則返回 null
+	 */
+	public static KillType fromStringOrNull(String text)
+	{
+		if (text == null)
+			return null;
 
-  /**
-   * 從字串獲取對應的 enum 值，如果找不到則返回 null
-   */
-  public static KillType fromStringOrNull(String text) {
-    if (text != null) {
-      for (KillType type : KillType.values()) {
-        if (type.stringValue.equalsIgnoreCase(text)) {
-          return type;
-        }
-      }
-    }
-    return null;
-  }
+		for (KillType type : KillType.values())
+			if (type.name().equalsIgnoreCase(text))
+				return type;
 
-  @Override
-  public String toString() {
-    return stringValue;
-  }
+		return null;
+	}
 }

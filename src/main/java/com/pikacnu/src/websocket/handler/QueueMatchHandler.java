@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import com.pikacnu.src.json.Action;
 import com.pikacnu.src.json.Status;
 import com.pikacnu.src.json.data.Payload;
-import com.pikacnu.src.json.data.Payload.QueueData;
 import com.pikacnu.src.PartyDatabase;
 import com.pikacnu.src.PartyDatabase.PartyData;
 import com.pikacnu.UTA2;
@@ -19,8 +18,7 @@ public class QueueMatchHandler extends BaseHandler {
   @Override
   public void handle(Action action, Status status, String sessionId, Payload payload) {
     if (payload != null && payload.queue != null) {
-      QueueData queueData = payload.queue;
-      ArrayList<ArrayList<PartyData>> parties = queueData.parties;
+      ArrayList<ArrayList<PartyData>> parties = payload.queue.parties();
       if (parties == null || parties.isEmpty()) {
         UTA2.LOGGER.error("Received QUEUE_MATCH message with empty or null parties");
         return;

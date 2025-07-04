@@ -21,10 +21,10 @@ public class TeamJoinHandler extends BaseHandler {
     UTA2.LOGGER.info("Received team join message");
     if (payload != null && payload.teamData != null) {
       for (TeamData team : payload.teamData) {
-        Integer teamId = team.team != null ? Integer.parseInt(team.team) : null;
-        for (String name : team.names) {
+        Integer teamId = team.team() != null ? Integer.parseInt(team.team()) : null;
+        for (String name : team.names()) {
           if (name == null || name.isEmpty()) {
-            UTA2.LOGGER.warn("Received empty UUID in team join message for team: " + team.team);
+            UTA2.LOGGER.warn("Received empty UUID in team join message for team: " + team.team());
             continue;
           }
           /*

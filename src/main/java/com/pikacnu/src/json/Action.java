@@ -34,54 +34,34 @@ public enum Action {
   OUTPUT_WIN("output_win"),
   GAME_STATUS("game_status"),
 
-  PLAYER_ONLINE_STATUS("player_online_status");
+	PLAYER_ONLINE_STATUS("player_online_status");
 
-  /**
-   * 動作對應的字串值。
-   */
-  private final String stringValue;
+	/**
+	 * 從字串獲取對應的 enum 值（不區分大小寫）
+	 */
+	public static Action fromString(String text)
+	{
+		if (text == null)
+			throw new IllegalArgumentException("No enum constant for null action");
 
-  Action(String stringValue) {
-    this.stringValue = stringValue;
-  }
+		for (Action action : Action.values())
+			if (action.name().equalsIgnoreCase(text))
+				return action;
 
-  /**
-   * 取得動作字串。
-   */
-  public String getString() {
-    return stringValue;
-  }
+		throw new IllegalArgumentException("No enum constant for action: " + text);
+	}
 
-  /**
-   * 從字串獲取對應的 enum 值（不區分大小寫）
-   */
-  public static Action fromString(String text) {
-    if (text != null) {
-      for (Action action : Action.values()) {
-        if (action.stringValue.equalsIgnoreCase(text)) {
-          return action;
-        }
-      }
-    }
-    throw new IllegalArgumentException("No enum constant for action: " + text);
-  }
-
-  /**
-   * 從字串獲取對應的 enum 值，如果找不到則返回 null
-   */
-  public static Action fromStringOrNull(String text) {
-    if (text != null) {
-      for (Action action : Action.values()) {
-        if (action.stringValue.equalsIgnoreCase(text)) {
-          return action;
-        }
-      }
-    }
-    return null;
-  }
-
-  @Override
-  public String toString() {
-    return stringValue;
-  }
+	/**
+	 * 從字串獲取對應的 enum 值，如果找不到則返回 null
+	 */
+	public static Action fromStringOrNull(String text) {
+		if (text != null) {
+			for (Action action : Action.values()) {
+				if (action.name().equalsIgnoreCase(text)) {
+					return action;
+				}
+			}
+		}
+		return null;
+	}
 }
