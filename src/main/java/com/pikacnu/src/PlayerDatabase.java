@@ -3,6 +3,7 @@ package com.pikacnu.src;
 import java.util.ArrayList;
 
 import com.pikacnu.src.json.*;
+import com.pikacnu.src.json.data.*;
 
 public class PlayerDatabase {
   public static class PlayerData {

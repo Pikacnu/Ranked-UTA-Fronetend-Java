@@ -10,9 +10,9 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.pikacnu.src.WebSocket;
 import com.pikacnu.src.json.Action;
 import com.pikacnu.src.json.KillType;
-import com.pikacnu.src.json.Message;
-import com.pikacnu.src.json.Payload;
-import com.pikacnu.src.json.kill;
+import com.pikacnu.src.json.data.Message;
+import com.pikacnu.src.json.data.Payload;
+import com.pikacnu.src.json.data.Kill;
 
 public class PlayerKilledCommand implements ICommand {
   @Override
@@ -60,7 +60,7 @@ public class PlayerKilledCommand implements ICommand {
                                 }
 
                                 // Create kill object
-                                kill killData = new kill(target, KillType.fromString(attackerType), attacker);
+                                Kill killData = new Kill(target, KillType.fromString(attackerType), attacker);
 
                                 // Send the kill data
                                 Payload payload = new Payload();
@@ -123,7 +123,7 @@ public class PlayerKilledCommand implements ICommand {
                                     }
 
                                     // Create kill object
-                                    kill killData = new kill(target,
+                                    Kill killData = new Kill(target,
                                         KillType.fromString(attackerType), attacker, assistsInput);
 
                                     // Send the kill data

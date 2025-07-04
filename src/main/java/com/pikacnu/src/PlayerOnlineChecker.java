@@ -5,10 +5,10 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import com.pikacnu.UTA2;
 import com.pikacnu.src.json.Action;
-import com.pikacnu.src.json.Message;
-import com.pikacnu.src.json.Payload;
-import com.pikacnu.src.json.Payload.PlayerOnlineStatus;
-import com.pikacnu.src.json.Payload.PlayerOnlineStatus.Connection;
+import com.pikacnu.src.json.data.Message;
+import com.pikacnu.src.json.data.Payload;
+import com.pikacnu.src.json.data.Payload.PlayerOnlineStatus;
+import com.pikacnu.src.json.data.Payload.PlayerOnlineStatus.Connection;
 
 public class PlayerOnlineChecker {
 

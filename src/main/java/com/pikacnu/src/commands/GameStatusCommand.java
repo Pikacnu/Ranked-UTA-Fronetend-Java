@@ -8,9 +8,9 @@ import net.minecraft.text.Text;
 
 import com.pikacnu.src.WebSocket;
 import com.pikacnu.src.json.Action;
-import com.pikacnu.src.json.Message;
-import com.pikacnu.src.json.Payload;
-import com.pikacnu.src.json.game_status;
+import com.pikacnu.src.json.data.Message;
+import com.pikacnu.src.json.data.Payload;
+import com.pikacnu.src.json.data.GameStatus;
 
 public class GameStatusCommand implements ICommand {
   @Override
@@ -25,7 +25,7 @@ public class GameStatusCommand implements ICommand {
                     Integer status = IntegerArgumentType.getInteger(context, "status");
 
                     // Create game status object
-                    game_status gameStatusData = new game_status(status);
+                    GameStatus gameStatusData = new GameStatus(status);
 
                     // Send the game status data
                     Payload payload = new Payload();

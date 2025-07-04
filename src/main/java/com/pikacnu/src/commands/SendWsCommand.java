@@ -10,8 +10,8 @@ import org.slf4j.Logger;
 import com.pikacnu.UTA2;
 import com.pikacnu.src.WebSocket;
 import com.pikacnu.src.json.Action;
-import com.pikacnu.src.json.Message;
-import com.pikacnu.src.json.Payload;
+import com.pikacnu.src.json.data.Message;
+import com.pikacnu.src.json.data.Payload;
 
 public class SendWsCommand implements ICommand {
   @Override

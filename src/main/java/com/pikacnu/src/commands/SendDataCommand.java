@@ -10,9 +10,9 @@ import net.minecraft.text.Text;
 import com.pikacnu.src.StorageNbtHelper;
 import com.pikacnu.src.WebSocket;
 import com.pikacnu.src.json.Action;
-import com.pikacnu.src.json.Message;
-import com.pikacnu.src.json.Payload;
-import com.pikacnu.src.json.storage_data;
+import com.pikacnu.src.json.data.Message;
+import com.pikacnu.src.json.data.Payload;
+import com.pikacnu.src.json.data.StorageData;
 
 public class SendDataCommand implements ICommand {
   @Override
@@ -34,7 +34,7 @@ public class SendDataCommand implements ICommand {
                                 .map(nbtElement -> nbtElement.toString()).toArray(Object[]::new);
 
                             // Create storage data object
-                            storage_data storageData = new storage_data(storage, "data", nbtResult);
+                            StorageData storageData = new StorageData(storage, "data", nbtResult);
 
                             // Send the storage data
                             Payload payload = new Payload();

@@ -12,9 +12,9 @@ import net.minecraft.text.Text;
 
 import com.pikacnu.src.WebSocket;
 import com.pikacnu.src.json.Action;
-import com.pikacnu.src.json.Message;
-import com.pikacnu.src.json.Payload;
-import com.pikacnu.src.json.damage;
+import com.pikacnu.src.json.data.Message;
+import com.pikacnu.src.json.data.Payload;
+import com.pikacnu.src.json.data.Damage;
 
 public class DamagedCommand implements ICommand {
   @Override
@@ -53,7 +53,7 @@ public class DamagedCommand implements ICommand {
                                         .getOrCreateScore(name, objective).getScore();
 
                                     // Create damage object
-                                    damage damageData = new damage(target, attacker, damage);
+                                    Damage damageData = new Damage(target, attacker, damage);
 
                                     // Send the damage data
                                     Payload payload = new Payload();

@@ -12,9 +12,9 @@ import com.pikacnu.src.PlayerDatabase.PlayerData;
 import com.pikacnu.src.WebSocket;
 import com.pikacnu.src.PartyDatabase.PartyData;
 import com.pikacnu.src.json.Action;
-import com.pikacnu.src.json.Message;
-import com.pikacnu.src.json.Payload;
-import com.pikacnu.src.json.Payload.QueueData;
+import com.pikacnu.src.json.data.Message;
+import com.pikacnu.src.json.data.Payload;
+import com.pikacnu.src.json.data.Payload.QueueData;
 
 public class QueueCommand implements ICommand {
   @Override

@@ -8,9 +8,9 @@ import net.minecraft.text.Text;
 
 import com.pikacnu.src.WebSocket;
 import com.pikacnu.src.json.Action;
-import com.pikacnu.src.json.Message;
-import com.pikacnu.src.json.Payload;
-import com.pikacnu.src.json.map_choose;
+import com.pikacnu.src.json.data.Message;
+import com.pikacnu.src.json.data.Payload;
+import com.pikacnu.src.json.data.MapChoose;
 
 public class MapChooseCommand implements ICommand {
   @Override
@@ -24,7 +24,7 @@ public class MapChooseCommand implements ICommand {
                     int mapId = IntegerArgumentType.getInteger(context, "map_index");
 
                     // Create map choose object
-                    map_choose mapChooseData = new map_choose(mapId);
+                    MapChoose mapChooseData = new MapChoose(mapId);
 
                     // Send the map choose data
                     Payload payload = new Payload();
