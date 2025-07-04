@@ -33,6 +33,6 @@ public class PlayerDataHandler extends BaseHandler {
 
   @Override
   public Action getActionType() {
-    return Action.GET_PLAYER_DATA;
+    return Action.get_player_data;
   }
 }

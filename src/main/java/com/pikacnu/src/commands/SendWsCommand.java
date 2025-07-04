@@ -34,7 +34,7 @@ public class SendWsCommand implements ICommand {
                     // Create structured message
                     Payload payload = new Payload();
                     payload.message = message;
-                    Message wsMessage = new Message(Action.COMMAND, WebSocketClient.serverSessionId, payload);
+                    Message wsMessage = new Message(Action.command, WebSocketClient.serverSessionId, payload);
                     WebSocketClient.sendMessage(wsMessage);
 
                     context.getSource().sendMessage(Text.literal("Message sent: " + message).withColor(0x00FF00));

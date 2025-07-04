@@ -93,7 +93,7 @@ public class PlayerDatabase {
   public static void updatePlayerDataFromServer(String uuid, String minecraftId) {
     Payload payload = new Payload();
     payload.player = new PlayerData(uuid, minecraftId, null);
-    Message getPlayerDataMessage = new Message(Action.GET_PLAYER_DATA, WebSocketClient.serverSessionId, payload);
+    Message getPlayerDataMessage = new Message(Action.get_player_data, WebSocketClient.serverSessionId, payload);
     WebSocketClient.sendMessage(getPlayerDataMessage);
   }
   /*

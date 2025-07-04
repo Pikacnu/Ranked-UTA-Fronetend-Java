@@ -6,118 +6,124 @@ import com.pikacnu.src.json.JsonUtils;
 import com.pikacnu.src.PartyDatabase.PartyData;
 import com.pikacnu.src.PlayerDatabase.PlayerData;
 
-/**
- * 表示伺服器傳輸的有效載荷。
- */
 public class Payload {
-	public String command;
-	public String[] commands;
-	public String message;
-	public Object data;
-	public String request_target;
-	public PlayerData player;
-	public PartyData party;
+  public String command;
+  public String[] commands;
+  public String message;
+  public Object data;
+  public String request_target;
+  public PlayerData player;
+  public PartyData party;
 
-	public static class LobbyData {
-		public boolean isLobby;
+  public static class LobbyData {
+    public boolean isLobby;
 
-		public LobbyData(boolean isLobby) {
-			this.isLobby = isLobby;
-		}
-	}
+    public LobbyData(boolean isLobby) {
+      this.isLobby = isLobby;
+    }
+  }
 
-	public LobbyData lobby;
+  public LobbyData lobby;
 
-	public record TeamData(String team, String[] names) {}
+  public record TeamData(String team, String[] names) {
+  }
 
-	public TeamData[] teamData;
+  public TeamData[] teamData;
 
-	public record QueueData(String queueName, String uuid, ArrayList<ArrayList<PartyData>> parties) {}
+  public record QueueData(String queueName, String uuid, ArrayList<ArrayList<PartyData>> parties) {
+  }
 
-	public QueueData queue;
+  public QueueData queue;
 
-	public record WhitelistEntry(String uuid, String minecraftId) {}
+  public record WhitelistEntry(String uuid, String minecraftId) {
+  }
 
-	public ArrayList<WhitelistEntry> whitelist;
+  public ArrayList<WhitelistEntry> whitelist;
 
-	public static class PlayerOnlineStatus {
-		public ArrayList<String> uuids;
+  public record handshakeData(boolean isLobby, String minecraftServerIP, Integer minecraftServerPort, String serverId) {
+  }
 
-		public enum Connection {
-			CONNECTED, DISCONNECTED
-		}
+  public handshakeData handshake;
 
-		public Connection connection;
+  public static class PlayerOnlineStatus {
+    public ArrayList<String> uuids;
 
-		public PlayerOnlineStatus(ArrayList<String> uuids, Connection connection) {
-			this.uuids = uuids;
-			this.connection = connection;
-		}
-	}
+    public enum Connection {
+      CONNECTED, DISCONNECTED
+    }
 
-	public PlayerOnlineStatus playerOnlineStatus;
+    public Connection connection;
 
-	public static class TransferData {
-		public String targetServer;
-		public Integer targetPort;
-		public ArrayList<String> uuids;
+    public PlayerOnlineStatus(ArrayList<String> uuids, Connection connection) {
+      this.uuids = uuids;
+      this.connection = connection;
+    }
+  }
 
-		public TransferData(String targetServer, Integer port, ArrayList<String> uuids) {
-			this.targetServer = targetServer;
-			this.targetPort = port;
-			this.uuids = new ArrayList<>();
-		}
-	}
+  public PlayerOnlineStatus playerOnlineStatus;
 
-	public TransferData transferData;
+  public static class TransferData {
+    public String targetServer;
+    public Integer targetPort;
+    public ArrayList<String> uuids;
 
-	public Payload(String command, String[] commands, String message, String[] data) {
-		this.command = command;
-		this.commands = commands;
-		this.message = message;
-		this.data = data;
-	}
+    public TransferData(String targetServer, Integer port, ArrayList<String> uuids) {
+      this.targetServer = targetServer;
+      this.targetPort = port;
+      this.uuids = new ArrayList<>();
+    }
+  }
 
-	public Payload() {}
+  public TransferData transferData;
 
-	public Payload(String command) {
-		this(command, null, null, null);
-	}
+  public Payload(String command, String[] commands, String message, String[] data) {
+    this.command = command;
+    this.commands = commands;
+    this.message = message;
+    this.data = data;
+  }
 
-	public Payload(String[] commands) {
-		this(null, commands, null, null);
-	}
+  public Payload() {
+  }
 
-	public Payload(String message, String[] data) {
-		this(null, null, message, data);
-	}
+  public Payload(String command) {
+    this(command, null, null, null);
+  }
 
-	/**
-	 * 從 JSON 字串解析 Payload
-	 */
-	public static Payload fromJson(String jsonString) {
-		try {
-			return JsonUtils.getGson().fromJson(jsonString, Payload.class);
-		} catch (JsonSyntaxException e) {
-			throw new IllegalArgumentException("Invalid JSON format for Payload: " + e.getMessage(), e);
-		}
-	}
+  public Payload(String[] commands) {
+    this(null, commands, null, null);
+  }
 
-	/**
-	 * 轉換為 JSON 字串
-	 */
-	public String toJson() {
-		return JsonUtils.getGson().toJson(this);
-	}
+  public Payload(String message, String[] data) {
+    this(null, null, message, data);
+  }
 
-	/**
-	 * 從 JSON 字串解析並返回 null 如果失敗
-	 */
-	public static Payload fromJsonOrNull(String jsonString) {
-		try {
-			return JsonUtils.getGson().fromJson(jsonString, Payload.class);
-		} catch (JsonSyntaxException e) {
-			return null;
-		}
-	}
+  /**
+   * 從 JSON 字串解析 Payload
+   */
+  public static Payload fromJson(String jsonString) {
+    try {
+      return JsonUtils.getGson().fromJson(jsonString, Payload.class);
+    } catch (JsonSyntaxException e) {
+      throw new IllegalArgumentException("Invalid JSON format for Payload: " + e.getMessage(), e);
+    }
+  }
+
+  /**
+   * 轉換為 JSON 字串
+   */
+  public String toJson() {
+    return JsonUtils.getGson().toJson(this);
+  }
+
+  /**
+   * 從 JSON 字串解析並返回 null 如果失敗
+   */
+  public static Payload fromJsonOrNull(String jsonString) {
+    try {
+      return JsonUtils.getGson().fromJson(jsonString, Payload.class);
+    } catch (JsonSyntaxException e) {
+      return null;
+    }
+  }
 }

@@ -60,6 +60,6 @@ public class TeamJoinHandler extends BaseHandler {
 
   @Override
   public Action getActionType() {
-    return Action.TEAM_JOIN;
+    return Action.team_join;
   }
 }

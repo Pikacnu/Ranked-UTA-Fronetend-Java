@@ -15,12 +15,12 @@ public class HeartbeatHandler extends BaseHandler {
 
   @Override
   public void handle(Action action, Status status, String sessionId, Payload payload) {
-    Message heartbeatMessage = new Message(Action.HEARTBEAT, WebSocketClient.serverSessionId);
+    Message heartbeatMessage = new Message(Action.heartbeat, WebSocketClient.serverSessionId);
     WebSocketClient.sendMessage(heartbeatMessage);
   }
 
   @Override
   public Action getActionType() {
-    return Action.HEARTBEAT;
+    return Action.heartbeat;
   }
 }

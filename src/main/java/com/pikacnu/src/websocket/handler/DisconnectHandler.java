@@ -21,6 +21,6 @@ public class DisconnectHandler extends BaseHandler {
 
   @Override
   public Action getActionType() {
-    return Action.DISCONNECT;
+    return Action.disconnect;
   }
 }

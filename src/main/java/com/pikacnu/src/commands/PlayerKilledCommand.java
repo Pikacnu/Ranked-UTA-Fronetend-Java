@@ -65,7 +65,7 @@ public class PlayerKilledCommand implements ICommand {
                                 // Send the kill data
                                 Payload payload = new Payload();
                                 payload.data = killData;
-                                Message wsMessage = new Message(Action.KILL, WebSocketClient.serverSessionId, payload);
+                                Message wsMessage = new Message(Action.kill, WebSocketClient.serverSessionId, payload);
                                 WebSocketClient.sendMessage(wsMessage);
 
                                 context.getSource().sendMessage(Text
@@ -129,7 +129,7 @@ public class PlayerKilledCommand implements ICommand {
                                     // Send the kill data
                                     Payload payload = new Payload();
                                     payload.data = killData;
-                                    Message wsMessage = new Message(Action.KILL, WebSocketClient.serverSessionId,
+                                    Message wsMessage = new Message(Action.kill, WebSocketClient.serverSessionId,
                                         payload);
                                     WebSocketClient.sendMessage(wsMessage);
 

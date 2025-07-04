@@ -47,6 +47,6 @@ public class QueueMatchHandler extends BaseHandler {
 
   @Override
   public Action getActionType() {
-    return Action.QUEUE_MATCH;
+    return Action.queue_match;
   }
 }

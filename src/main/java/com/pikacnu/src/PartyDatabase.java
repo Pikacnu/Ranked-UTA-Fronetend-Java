@@ -115,7 +115,7 @@ public class PartyDatabase {
       }
       partyMembers.clear();
       partyLeaderUUID = null; // Clear party leader UUID
-      updateToServer(Action.PARTY_DISBANDED); // Notify server about disbanding
+      updateToServer(Action.party_disband); // Notify server about disbanding
       removeParty(partyId); // Remove the party from the database
     }
 
@@ -133,7 +133,7 @@ public class PartyDatabase {
      * 將隊伍資料更新至伺服器，動作為 PARTY。
      */
     public void updateToServer() {
-      updateToServer(Action.PARTY);
+      updateToServer(Action.party);
     }
 
     /**
@@ -178,7 +178,7 @@ public class PartyDatabase {
 
       if (partyMembers.size() <= 2) {
         this.disbandParty(); // If only one member left, disband the party
-        updateToServer(Action.PARTY_DISBANDED); // Notify server about disbanding
+        updateToServer(Action.party_disband); // Notify server about disbanding
         return PartyResultMessage.PARTY_DISBANDED; // Successfully disbanded the party
       }
 
@@ -208,7 +208,7 @@ public class PartyDatabase {
 
       if (partyMembers.isEmpty()) {
         disbandParty(); // If no members left, disband the party
-        updateToServer(Action.PARTY_DISBANDED); // Notify server about disbanding
+        updateToServer(Action.party_disband); // Notify server about disbanding
         removeParty(partyId); // Remove the party from the database
         return PartyResultMessage.PARTY_DISBANDED; // Successfully disbanded the party
       }

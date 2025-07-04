@@ -61,7 +61,8 @@ public class QueueCommand implements ICommand {
                   // Create queue object
                   if (action.equals("leave")) {
                     context.getSource().sendFeedback(() -> Text.literal("您已離開佇列。"), false);
-                    QueueData queueData = new QueueData("leave", context.getSource().getPlayer().getUuidAsString(), new ArrayList<>());
+                    QueueData queueData = new QueueData("leave", context.getSource().getPlayer().getUuidAsString(),
+                        new ArrayList<>());
                     PartyData party = PartyDatabase.getPartyData(context.getSource().getPlayer().getUuidAsString());
                     if (party != null) {
                       party.isInQueue = false;
@@ -104,13 +105,14 @@ public class QueueCommand implements ICommand {
 
                     context.getSource().sendFeedback(() -> Text.literal("您已加入 " + action + " 佇列。"),
                         false);
-                    payload.queue = new QueueData(action, context.getSource().getPlayer().getUuidAsString(), new ArrayList<>());
+                    payload.queue = new QueueData(action, context.getSource().getPlayer().getUuidAsString(),
+                        new ArrayList<>());
                   }
                   Action actionType;
                   if (action.equals("leave")) {
-                    actionType = Action.QUEUE_LEAVE;
+                    actionType = Action.queue_leave;
                   } else {
-                    actionType = Action.QUEUE;
+                    actionType = Action.queue;
                   }
                   Message wsMessage = new Message(actionType, WebSocketClient.serverSessionId, payload);
                   WebSocketClient.sendMessage(wsMessage);

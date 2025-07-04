@@ -28,7 +28,7 @@ public class HandshakeHandler extends BaseHandler {
       Payload handshakePayload = new Payload();
       handshakePayload.handshake = new handshakeData(Config.isLobby, Config.minecraftServerIP,
           Config.minecraftServerPort, Config.serverId);
-      Message handshakeMessage = new Message(Action.HANDSHAKE, sessionId, handshakePayload);
+      Message handshakeMessage = new Message(Action.handshake, sessionId, handshakePayload);
       WebSocketClient.sendMessage(handshakeMessage);
     } else {
       UTA2.LOGGER.error("Handshake message missing serverId");
@@ -37,6 +37,6 @@ public class HandshakeHandler extends BaseHandler {
 
   @Override
   public Action getActionType() {
-    return Action.HANDSHAKE;
+    return Action.handshake;
   }
 }

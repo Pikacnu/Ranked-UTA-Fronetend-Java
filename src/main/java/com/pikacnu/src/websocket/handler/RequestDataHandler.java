@@ -47,6 +47,6 @@ public class RequestDataHandler extends BaseHandler {
 
   @Override
   public Action getActionType() {
-    return Action.REQUEST_DATA;
+    return Action.request_data;
   }
 }

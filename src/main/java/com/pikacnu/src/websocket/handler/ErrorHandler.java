@@ -20,6 +20,6 @@ public class ErrorHandler extends BaseHandler {
 
   @Override
   public Action getActionType() {
-    return Action.ERROR;
+    return Action.error;
   }
 }

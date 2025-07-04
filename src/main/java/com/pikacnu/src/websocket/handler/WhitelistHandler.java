@@ -42,6 +42,6 @@ public class WhitelistHandler extends BaseHandler {
 
   @Override
   public Action getActionType() {
-    return Action.WHITELIST_CHANGE;
+    return Action.whitelist_change;
   }
 }

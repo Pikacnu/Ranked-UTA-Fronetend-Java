@@ -19,6 +19,6 @@ public class PlayerOnlineStatusHandler extends BaseHandler {
 
   @Override
   public Action getActionType() {
-    return Action.PLAYER_ONLINE_STATUS;
+    return Action.player_online_status;
   }
 }

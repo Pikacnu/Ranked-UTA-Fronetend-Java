@@ -41,6 +41,6 @@ public class CommandHandler extends BaseHandler {
 
   @Override
   public Action getActionType() {
-    return Action.COMMAND;
+    return Action.command;
   }
 }

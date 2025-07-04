@@ -178,7 +178,7 @@ public class WebSocketClient {
       String sessionId = message.sessionId;
       Payload payload = message.payload;
 
-      if (action != Action.HEARTBEAT) {
+      if (action != Action.heartbeat) {
         UTA2.LOGGER.info("Parsed message - Action: " + action + ", Status: " + status);
       }
 

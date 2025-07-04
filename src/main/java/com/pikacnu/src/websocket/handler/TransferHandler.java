@@ -42,6 +42,6 @@ public class TransferHandler extends BaseHandler {
 
   @Override
   public Action getActionType() {
-    return Action.TRANSFER;
+    return Action.transfer;
   }
 }

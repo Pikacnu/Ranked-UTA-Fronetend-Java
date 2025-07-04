@@ -35,7 +35,7 @@ public class PlayerOnlineChecker {
 
     Payload payload = new Payload();
     payload.playerOnlineStatus = new PlayerOnlineStatus(players, connection);
-    Message message = new Message(Action.PLAYER_ONLINE_STATUS, WebSocketClient.serverSessionId, payload);
+    Message message = new Message(Action.player_online_status, WebSocketClient.serverSessionId, payload);
     WebSocketClient.sendMessage(message);
   }
 
