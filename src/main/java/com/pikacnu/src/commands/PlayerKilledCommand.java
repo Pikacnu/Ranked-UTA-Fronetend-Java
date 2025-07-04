@@ -7,7 +7,7 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import com.mojang.brigadier.arguments.StringArgumentType;
 
-import com.pikacnu.src.WebSocket;
+import com.pikacnu.src.websocket.WebSocketClient;
 import com.pikacnu.src.json.Action;
 import com.pikacnu.src.json.KillType;
 import com.pikacnu.src.json.data.Message;
@@ -65,8 +65,8 @@ public class PlayerKilledCommand implements ICommand {
                                 // Send the kill data
                                 Payload payload = new Payload();
                                 payload.data = killData;
-                                Message wsMessage = new Message(Action.KILL, WebSocket.serverSessionId, payload);
-                                WebSocket.sendMessage(wsMessage);
+                                Message wsMessage = new Message(Action.KILL, WebSocketClient.serverSessionId, payload);
+                                WebSocketClient.sendMessage(wsMessage);
 
                                 context.getSource().sendMessage(Text
                                     .literal("Player killed event sent successfully!").withColor(0x00FF00));
@@ -129,8 +129,9 @@ public class PlayerKilledCommand implements ICommand {
                                     // Send the kill data
                                     Payload payload = new Payload();
                                     payload.data = killData;
-                                    Message wsMessage = new Message(Action.KILL, WebSocket.serverSessionId, payload);
-                                    WebSocket.sendMessage(wsMessage);
+                                    Message wsMessage = new Message(Action.KILL, WebSocketClient.serverSessionId,
+                                        payload);
+                                    WebSocketClient.sendMessage(wsMessage);
 
                                     context.getSource().sendMessage(Text
                                         .literal("Player killed event sent successfully!").withColor(0x00FF00));

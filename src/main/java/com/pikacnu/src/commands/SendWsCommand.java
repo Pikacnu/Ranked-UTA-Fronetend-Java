@@ -8,7 +8,7 @@ import net.minecraft.text.Text;
 import org.slf4j.Logger;
 
 import com.pikacnu.UTA2;
-import com.pikacnu.src.WebSocket;
+import com.pikacnu.src.websocket.WebSocketClient;
 import com.pikacnu.src.json.Action;
 import com.pikacnu.src.json.data.Message;
 import com.pikacnu.src.json.data.Payload;
@@ -34,8 +34,8 @@ public class SendWsCommand implements ICommand {
                     // Create structured message
                     Payload payload = new Payload();
                     payload.message = message;
-                    Message wsMessage = new Message(Action.COMMAND, WebSocket.serverSessionId, payload);
-                    WebSocket.sendMessage(wsMessage);
+                    Message wsMessage = new Message(Action.COMMAND, WebSocketClient.serverSessionId, payload);
+                    WebSocketClient.sendMessage(wsMessage);
 
                     context.getSource().sendMessage(Text.literal("Message sent: " + message).withColor(0x00FF00));
                   } catch (Exception e) {

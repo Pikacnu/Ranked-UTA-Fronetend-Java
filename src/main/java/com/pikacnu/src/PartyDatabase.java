@@ -10,6 +10,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.text.Text;
 import com.pikacnu.src.json.*;
 import com.pikacnu.src.json.data.*;
+import com.pikacnu.src.websocket.WebSocketClient;
 
 /**
  * PartyDatabase 負責管理隊伍資料與操作。
@@ -124,8 +125,8 @@ public class PartyDatabase {
     public void updateToServer(Action action) {
       Payload payload = new Payload();
       payload.party = this; // Assuming Payload can hold PartyData directly
-      Message message = new Message(action, WebSocket.serverSessionId, payload);
-      WebSocket.sendMessage(message); // Send the updated party data to the server
+      Message message = new Message(action, WebSocketClient.serverSessionId, payload);
+      WebSocketClient.sendMessage(message); // Send the updated party data to the server
     }
 
     /**

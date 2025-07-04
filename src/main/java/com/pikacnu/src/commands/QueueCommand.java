@@ -9,7 +9,7 @@ import net.minecraft.text.Text;
 import com.pikacnu.src.PartyDatabase;
 import com.pikacnu.src.PlayerDatabase;
 import com.pikacnu.src.PlayerDatabase.PlayerData;
-import com.pikacnu.src.WebSocket;
+import com.pikacnu.src.websocket.WebSocketClient;
 import com.pikacnu.src.PartyDatabase.PartyData;
 import com.pikacnu.src.json.Action;
 import com.pikacnu.src.json.data.Message;
@@ -112,8 +112,8 @@ public class QueueCommand implements ICommand {
                   } else {
                     actionType = Action.QUEUE;
                   }
-                  Message wsMessage = new Message(actionType, WebSocket.serverSessionId, payload);
-                  WebSocket.sendMessage(wsMessage);
+                  Message wsMessage = new Message(actionType, WebSocketClient.serverSessionId, payload);
+                  WebSocketClient.sendMessage(wsMessage);
                   return 1; // Return 1 to indicate success
                 })));
   }

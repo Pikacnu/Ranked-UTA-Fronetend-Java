@@ -9,6 +9,7 @@ import com.pikacnu.src.json.data.Message;
 import com.pikacnu.src.json.data.Payload;
 import com.pikacnu.src.json.data.Payload.PlayerOnlineStatus;
 import com.pikacnu.src.json.data.Payload.PlayerOnlineStatus.Connection;
+import com.pikacnu.src.websocket.WebSocketClient;
 
 public class PlayerOnlineChecker {
 
@@ -34,8 +35,8 @@ public class PlayerOnlineChecker {
 
     Payload payload = new Payload();
     payload.playerOnlineStatus = new PlayerOnlineStatus(players, connection);
-    Message message = new Message(Action.PLAYER_ONLINE_STATUS, WebSocket.serverSessionId, payload);
-    WebSocket.sendMessage(message);
+    Message message = new Message(Action.PLAYER_ONLINE_STATUS, WebSocketClient.serverSessionId, payload);
+    WebSocketClient.sendMessage(message);
   }
 
   public static void addPlayer(String uuid) {

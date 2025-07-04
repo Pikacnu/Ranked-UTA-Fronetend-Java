@@ -8,7 +8,7 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
-import com.pikacnu.src.WebSocket;
+import com.pikacnu.src.websocket.WebSocketClient;
 import com.pikacnu.src.json.Action;
 import com.pikacnu.src.json.data.Message;
 import com.pikacnu.src.json.data.Payload;
@@ -27,13 +27,13 @@ public class GetDataCommand implements ICommand {
                             Identifier function = CommandFunctionArgumentType.getFunctionOrTag(context, "function")
                                 .getFirst();
 
-                            WebSocket.addTask(type, function);
+                            WebSocketClient.addTask(type, function);
 
                             Payload payload = new Payload();
                             payload.request_target = type;
 
-                            WebSocket.sendMessage(
-                                new Message(Action.REQUEST_DATA, WebSocket.serverSessionId, payload));
+                            WebSocketClient.sendMessage(
+                                new Message(Action.REQUEST_DATA, WebSocketClient.serverSessionId, payload));
 
                           } catch (Exception e) {
                             e.printStackTrace();

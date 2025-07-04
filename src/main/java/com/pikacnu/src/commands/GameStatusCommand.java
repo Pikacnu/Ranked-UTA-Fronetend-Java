@@ -6,7 +6,7 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 
-import com.pikacnu.src.WebSocket;
+import com.pikacnu.src.websocket.WebSocketClient;
 import com.pikacnu.src.json.Action;
 import com.pikacnu.src.json.data.Message;
 import com.pikacnu.src.json.data.Payload;
@@ -30,8 +30,8 @@ public class GameStatusCommand implements ICommand {
                     // Send the game status data
                     Payload payload = new Payload();
                     payload.data = gameStatusData;
-                    Message wsMessage = new Message(Action.GAME_STATUS, WebSocket.serverSessionId, payload);
-                    WebSocket.sendMessage(wsMessage);
+                    Message wsMessage = new Message(Action.GAME_STATUS, WebSocketClient.serverSessionId, payload);
+                    WebSocketClient.sendMessage(wsMessage);
 
                     context.getSource().sendMessage(Text
                         .literal("Game status event sent successfully!").withColor(0x00FF00));

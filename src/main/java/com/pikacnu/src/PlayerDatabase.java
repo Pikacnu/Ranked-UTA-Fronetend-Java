@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.pikacnu.src.json.*;
 import com.pikacnu.src.json.data.*;
+import com.pikacnu.src.websocket.WebSocketClient;
 
 public class PlayerDatabase {
   public static class PlayerData {
@@ -92,8 +93,8 @@ public class PlayerDatabase {
   public static void updatePlayerDataFromServer(String uuid, String minecraftId) {
     Payload payload = new Payload();
     payload.player = new PlayerData(uuid, minecraftId, null);
-    Message getPlayerDataMessage = new Message(Action.GET_PLAYER_DATA, WebSocket.serverSessionId, payload);
-    WebSocket.sendMessage(getPlayerDataMessage);
+    Message getPlayerDataMessage = new Message(Action.GET_PLAYER_DATA, WebSocketClient.serverSessionId, payload);
+    WebSocketClient.sendMessage(getPlayerDataMessage);
   }
   /*
    * public static boolean isTwoPlayerScoreGapTooLarge(String uuid1, String uuid2)

@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.pikacnu.src.Command;
 import com.pikacnu.src.PartyDatabase;
-import com.pikacnu.src.WebSocket;
+import com.pikacnu.src.websocket.WebSocketClient;
 import com.pikacnu.src.WhiteListManager;
 import com.pikacnu.src.PartyDatabase.PartyData;
 import com.pikacnu.src.PlayerDatabase;
@@ -34,7 +34,7 @@ public class UTA2 implements ModInitializer {
 
 		ServerLifecycleEvents.SERVER_STARTED.register(this::onServerStarted);
 		ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStopping);
-		
+
 		ServerPlayConnectionEvents.JOIN.register(this::onPlayerJoin);
 		ServerPlayConnectionEvents.DISCONNECT.register(this::onPlayerDisconnect);
 
@@ -46,7 +46,7 @@ public class UTA2 implements ModInitializer {
 
 	private void onServerStarted(MinecraftServer server) {
 		UTA2.server = server;
-		WebSocket.init(server);
+		WebSocketClient.init(server);
 		PartyDatabase.server = server;
 		WhiteListManager.server = server;
 		LOGGER.info("Server started, instance acquired");
@@ -55,14 +55,14 @@ public class UTA2 implements ModInitializer {
 	private void onServerStopping(MinecraftServer server) {
 		UTA2.server = null;
 		LOGGER.info("Server stopping");
-		if (WebSocket.isConnected()) {
-			WebSocket.shutdown();
+		if (WebSocketClient.isConnected()) {
+			WebSocketClient.shutdown();
 			LOGGER.info("WebSocket connection closed");
 		}
 		PlayerDatabase.clear();
 		PartyDatabase.clear();
 		executorService.shutdown();
-		WebSocket.scheduler.shutdownNow();
+		WebSocketClient.scheduler.shutdownNow();
 		PlayerOnlineChecker.scheduler.shutdownNow();
 	}
 
