@@ -7,6 +7,7 @@ import com.pikacnu.UTA2;
 import com.pikacnu.src.PlayerDatabase.PlayerData;
 
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import com.pikacnu.src.json.*;
 import com.pikacnu.src.json.data.*;
@@ -115,7 +116,7 @@ public class PartyDatabase {
       }
       partyMembers.clear();
       partyLeaderUUID = null; // Clear party leader UUID
-      updateToServer(Action.party_disband); // Notify server about disbanding
+      updateToServer(Action.party_disbanded); // Notify server about disbanding
       removeParty(partyId); // Remove the party from the database
     }
 
@@ -178,7 +179,7 @@ public class PartyDatabase {
 
       if (partyMembers.size() <= 2) {
         this.disbandParty(); // If only one member left, disband the party
-        updateToServer(Action.party_disband); // Notify server about disbanding
+        updateToServer(Action.party_disbanded); // Notify server about disbanding
         return PartyResultMessage.PARTY_DISBANDED; // Successfully disbanded the party
       }
 
@@ -208,7 +209,7 @@ public class PartyDatabase {
 
       if (partyMembers.isEmpty()) {
         disbandParty(); // If no members left, disband the party
-        updateToServer(Action.party_disband); // Notify server about disbanding
+        updateToServer(Action.party_disbanded); // Notify server about disbanding
         removeParty(partyId); // Remove the party from the database
         return PartyResultMessage.PARTY_DISBANDED; // Successfully disbanded the party
       }
@@ -342,15 +343,12 @@ public class PartyDatabase {
     if (PlayerDatabase.getPlayerData(targetUuid) == null) {
       return PartyResultMessage.PLAYER_NOT_FOUND; // Target player not found
     }
-    server.getPlayerManager().getPlayer(UUID.fromString(inviterUuid))
-        .sendMessage(Text.literal("Invitation sent to " + targetPlayer.minecraftId)
-            .withColor(0x00FF00), false);
     server.getPlayerManager().getPlayer(UUID.fromString(targetUuid))
         .sendMessage(Text
             .literal("You have received an invitation from " + inviter.minecraftId)
             .withColor(0x00FF00), false);
     partyInvitions.add(new PartyInvition(partyId, targetUuid, inviterUuid));
-    return null;
+    return PartyResultMessage.PLAYER_INVITATION_SENT;
   }
 
   /**
@@ -438,6 +436,21 @@ public class PartyDatabase {
       server.getPlayerManager().getPlayer(UUID.fromString(invitation.inviterUuid))
           .sendMessage(Text.literal("Invitation to " + PlayerDatabase.getPlayerData(invitation.targetUuid).minecraftId +
               " has expired.").withColor(0xFF0000), false);
+      PartyData party = getPartyData(invitation.partyId);
+      ServerPlayerEntity inviter = server.getPlayerManager().getPlayer(UUID.fromString(invitation.inviterUuid));
+      ServerPlayerEntity targetPlayer = server.getPlayerManager().getPlayer(UUID.fromString(invitation.targetUuid));
+      if (inviter != null) {
+        inviter.sendMessage(Text.literal("Your invitation to " + targetPlayer.getName().getString() + " has expired.")
+            .withColor(0xFF0000), false);
+      }
+      if (targetPlayer != null) {
+        targetPlayer.sendMessage(Text.literal("You have missed the invitation from " + inviter.getName().getString())
+            .withColor(0xFF0000), false);
+      }
+      if (party != null && party.partyMembers.size() == 1 && party.isPartyLeader(invitation.inviterUuid)) {
+        party.disbandParty(); // If the only member is the inviter, disband the party
+      }
+
     }
   }
 
@@ -458,7 +471,7 @@ public class PartyDatabase {
     PARTY_DISBANDED("隊伍已解散"),
     PARTY_NOT_FOUND("無效的隊伍"),
     PARTY_FULL("隊伍已滿！"),
-    PLAYER_NOT_IN_PARTY("{target}尚未在隊伍中"),
+    PLAYER_NOT_IN_PARTY("{target}未在隊伍中"),
     PLAYER_NOT_FOUND("{target}未在線"),
     PLAYER_NOT_LEADER("你不是隊長！"),
     PLAYER_SCORE_NOT_WITHIN_RANGE("邀請失敗，{target}的評級與你差距過大"),
@@ -469,7 +482,10 @@ public class PartyDatabase {
     INVITATION_NOT_FOUND("無效的組隊邀請"),
     INVITATION_EXPIRED("{inviter}的組隊邀請已過期"),
     PARTY_IN_QUEUE("隊伍匹配中..."),
-    PLAYER_ALREADY_IN_PARTY("{target}已在隊伍中");
+    PLAYER_ALREADY_IN_PARTY("{target}已在隊伍中"),
+    PLAYER_NOT_IN_QUEUE("你不在隊伍中"),
+    SHOULD_LEAVE_QUEUE("你應該先離開隊伍佇列再進行其他操作"),
+    ;
 
     private final String message;
 

@@ -66,6 +66,13 @@ public class QueueCommand implements ICommand {
                     PartyData party = PartyDatabase.getPartyData(context.getSource().getPlayer().getUuidAsString());
                     if (party != null) {
                       party.isInQueue = false;
+                      party.partyMembers.stream().forEach(member -> {
+                        PlayerData memberData = PlayerDatabase.getPlayerData(member.uuid);
+                        if (memberData != null) {
+                          memberData.isInQueue = false;
+                          PlayerDatabase.updatePlayerData(memberData);
+                        }
+                      });
                       PartyDatabase.updatePartyData(party);
                       if (party.partyMembers.size() == 1) {
                         party.disbandParty();
@@ -103,8 +110,37 @@ public class QueueCommand implements ICommand {
                       return 0; // Return 0 to indicate failure
                     }
 
+                    if (action.equals("solo") && playerCount > 1) {
+                      context.getSource().sendError(Text.literal("您不能在隊伍中使用 solo 佇列。"));
+                      return 0; // Return 0 to indicate failure
+                    }
+                    if (action.equals("duo") && playerCount > 2) {
+                      context.getSource().sendError(Text.literal("您不能在隊伍中使用 duo 佇列。"));
+                      return 0; // Return 0 to indicate failure
+                    }
+                    if (action.equals("squad") && playerCount > 4) {
+                      context.getSource().sendError(Text.literal("您不能在隊伍中使用 squad 佇列。"));
+                      return 0; // Return 0 to indicate failure
+                    }
+                    if (action.equals("siege") && playerCount > 4) {
+                      context.getSource().sendError(Text.literal("您不能在隊伍中使用 siege 佇列。"));
+                      return 0; // Return 0 to indicate failure
+                    }
+
                     context.getSource().sendFeedback(() -> Text.literal("您已加入 " + action + " 佇列。"),
                         false);
+
+                    party.isInQueue = true;
+                    PartyDatabase.updatePartyData(party);
+
+                    party.partyMembers.stream().forEach(member -> {
+                      PlayerData memberData = PlayerDatabase.getPlayerData(member.uuid);
+                      if (memberData != null) {
+                        memberData.isInQueue = true;
+                        PlayerDatabase.updatePlayerData(memberData);
+                      }
+                    });
+
                     payload.queue = new QueueData(action, context.getSource().getPlayer().getUuidAsString(),
                         new ArrayList<>());
                   }

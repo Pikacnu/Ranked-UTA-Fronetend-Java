@@ -7,21 +7,16 @@ import java.util.List;
 
 import com.pikacnu.Config;
 
-public class CommandInit
-{
+public class CommandInit {
 	private static final List<ICommand> commands = new ArrayList<>();
 
-	static
-	{
+	static {
 		// Register all commands here
-		if (Config.isLobby)
-		{
+		if (Config.isLobby) {
 			commands.add(new QueueCommand());
 			commands.add(new PartyCommand());
 			commands.add(new ScoreCommand());
-		}
-		else
-		{
+		} else {
 			commands.add(new PlayerKilledCommand());
 			commands.add(new DamagedCommand());
 			commands.add(new GameStatusCommand());
@@ -31,12 +26,11 @@ public class CommandInit
 		}
 		// commands.add(new SendWsCommand());
 		commands.add(new WsStatusCommand());
+		commands.add(new GetPlayerInfo());
 	}
 
-	public static void init()
-	{
-		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
-		{
+	public static void init() {
+		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
 			for (ICommand command : commands)
 				command.register(dispatcher);
 		});

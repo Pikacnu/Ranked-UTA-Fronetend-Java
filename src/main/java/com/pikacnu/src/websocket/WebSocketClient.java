@@ -208,7 +208,7 @@ public class WebSocketClient {
     if (handler != null) {
       handler.handle(action, status, sessionId, payload);
     } else {
-      UTA2.LOGGER.info("No handler found for action: " + action);
+      UTA2.LOGGER.info("No handler found for action: {} , payload : ", action, payload.toString());
     }
   }
 

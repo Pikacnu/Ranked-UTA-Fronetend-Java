@@ -23,7 +23,7 @@ public class HandshakeHandler extends BaseHandler {
         WebSocketClient.serverSessionId = sessionId;
         Config.setServerId(sessionId);
       }
-      UTA2.LOGGER.info("Handshake received, server ID: " + sessionId);
+      UTA2.LOGGER.info("Handshake received, server ID: {} session ID: {}", Config.serverId, sessionId);
 
       Payload handshakePayload = new Payload();
       handshakePayload.handshake = new handshakeData(Config.isLobby, Config.minecraftServerIP,

@@ -20,7 +20,7 @@ public enum Action {
   request_data,
   get_player_data,
   party,
-  party_disband,
+  party_disbanded,
   queue,
   queue_leave,
   queue_match,

@@ -30,7 +30,7 @@ public class Payload {
 
   public TeamData[] teamData;
 
-  public record QueueData(String queueName, String uuid, ArrayList<ArrayList<PartyData>> parties) {
+  public record QueueData(String queue_name, String uuid, ArrayList<ArrayList<PartyData>> parties) {
   }
 
   public QueueData queue;
@@ -40,7 +40,8 @@ public class Payload {
 
   public ArrayList<WhitelistEntry> whitelist;
 
-  public record handshakeData(boolean isLobby, String minecraftServerIP, Integer minecraftServerPort, String serverId) {
+  public record handshakeData(boolean isLobby, String minecraftServerIP, Integer minecraftServerPort,
+      String sessionId) {
   }
 
   public handshakeData handshake;

@@ -76,10 +76,8 @@ public class UTA2 implements ModInitializer {
 		String playerUUID = player.getUuidAsString();
 		LOGGER.info("Player joined: {}", playerName);
 
-		if (!Config.isLobby) {
-			PlayerOnlineChecker.addPlayer(playerUUID);
+		if (!Config.isLobby)
 			return;
-		}
 
 		PlayerDatabase.addPlayerData(new PlayerDatabase.PlayerData(playerUUID, playerName, 0));
 		PlayerDatabase.updatePlayerDataFromServer(playerUUID, playerName);
@@ -87,6 +85,9 @@ public class UTA2 implements ModInitializer {
 
 	private void onPlayerLoad(ServerPlayerEntity player) {
 		LOGGER.info("Player loaded: {}", player.getName().getString());
+		if (Config.isLobby)
+			return;
+
 		PlayerOnlineChecker.addPlayer(player.getUuid().toString());
 	}
 
