@@ -4,7 +4,7 @@ import com.pikacnu.src.json.Action;
 import com.pikacnu.src.json.Status;
 import com.pikacnu.src.json.data.Message;
 import com.pikacnu.src.json.data.Payload;
-import com.pikacnu.src.json.data.Payload.LobbyData;
+import com.pikacnu.src.json.data.Payload.handshakeData;
 import com.pikacnu.src.websocket.WebSocketClient;
 import com.pikacnu.Config;
 import com.pikacnu.UTA2;
@@ -19,12 +19,16 @@ public class HandshakeHandler extends BaseHandler {
   @Override
   public void handle(Action action, Status status, String sessionId, Payload payload) {
     if (!(sessionId == null || sessionId.isEmpty())) {
-      WebSocketClient.serverSessionId = sessionId;
+      if (Config.serverId.equals("null")) {
+        WebSocketClient.serverSessionId = sessionId;
+        Config.setServerId(sessionId);
+      }
       UTA2.LOGGER.info("Handshake received, server ID: " + sessionId);
 
       Payload handshakePayload = new Payload();
-      handshakePayload.lobby = new LobbyData(Config.isLobby);
-      Message handshakeMessage = new Message(Action.HANDSHAKE, WebSocketClient.serverSessionId, handshakePayload);
+      handshakePayload.handshake = new handshakeData(Config.isLobby, Config.minecraftServerIP,
+          Config.minecraftServerPort, Config.serverId);
+      Message handshakeMessage = new Message(Action.HANDSHAKE, sessionId, handshakePayload);
       WebSocketClient.sendMessage(handshakeMessage);
     } else {
       UTA2.LOGGER.error("Handshake message missing serverId");

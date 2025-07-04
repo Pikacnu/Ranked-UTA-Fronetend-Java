@@ -9,7 +9,6 @@ import net.minecraft.scoreboard.ScoreHolder;
 import net.minecraft.scoreboard.ScoreboardObjective;
 import net.minecraft.scoreboard.ServerScoreboard;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ServerPlayerEntity;
 
 public class TeamJoinHandler extends BaseHandler {
 
@@ -23,28 +22,34 @@ public class TeamJoinHandler extends BaseHandler {
     if (payload != null && payload.teamData != null) {
       for (TeamData team : payload.teamData) {
         Integer teamId = team.team != null ? Integer.parseInt(team.team) : null;
-        for (String uuid : team.uuids) {
-          if (uuid == null || uuid.isEmpty()) {
+        for (String name : team.names) {
+          if (name == null || name.isEmpty()) {
             UTA2.LOGGER.warn("Received empty UUID in team join message for team: " + team.team);
             continue;
           }
-          ServerPlayerEntity player = server.getPlayerManager().getPlayer(uuid);
-          if (player == null) {
-            UTA2.LOGGER.warn("Player not found or not online for UUID: " + uuid + " in team join message");
-            continue;
-          }
-          String ScoreboardName = player.getNameForScoreboard();
+          /*
+           * ServerPlayerEntity player = server.getPlayerManager().getPlayer(uuid);
+           * if (player == null) {
+           * UTA2.LOGGER.warn("Player not found or not online for UUID: " + uuid +
+           * " in team join message");
+           * continue;
+           * }
+           * String ScoreboardName = player.getNameForScoreboard();
+           */
           ServerScoreboard scoreboardManager = server.getScoreboard();
-          ScoreHolder holder = scoreboardManager.getKnownScoreHolders().stream()
-              .filter(h -> h.getNameForScoreboard().equals(ScoreboardName))
-              .findFirst()
-              .orElse(null);
+          /*
+           * ScoreHolder holder = scoreboardManager.getKnownScoreHolders().stream()
+           * .filter(h -> h.getNameForScoreboard().equals(ScoreboardName))
+           * .findFirst()
+           * .orElse(null);
+           */
+          ScoreHolder holder = ScoreHolder.fromName(name);
           ScoreboardObjective objective = scoreboardManager.getObjectives().stream()
               .filter(obj -> obj.getName().equals("tid")).findFirst().orElse(null);
           if (holder != null && objective != null) {
             scoreboardManager.getOrCreateScore(holder, objective).setScore(teamId);
           } else {
-            UTA2.LOGGER.warn("No ScoreHolder or objective found for UUID: " + uuid + " in team join message");
+            UTA2.LOGGER.warn("No ScoreHolder or objective found for UUID: " + name + " in team join message");
           }
         }
       }

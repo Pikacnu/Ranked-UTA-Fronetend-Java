@@ -10,7 +10,6 @@ public enum Action {
   ERROR("error"),
   KILL("kill"),
   DAMAGE("damage"),
-  GAME_STATUS("game_status"),
   MAP_CHOOSE("map_choose"),
   STORAGE_DATA("storage_data"),
   CLIENT_ID("clientId"),
@@ -33,6 +32,7 @@ public enum Action {
 
   PLAYER_INFO("player_info"),
   OUTPUT_WIN("output_win"),
+  GAME_STATUS("game_status"),
 
   PLAYER_ONLINE_STATUS("player_online_status");
 

@@ -2,9 +2,7 @@
 	"required": true,
 	"package": "com.pikacnu.mixin",
 	"compatibilityLevel": "JAVA_21",
-	"mixins": [
-		"ExampleMixin"
-	],
+	"mixins": ["ExampleMixin", "PlayerManagerMixin"],
 	"injectors": {
 		"defaultRequire": 1
 	}

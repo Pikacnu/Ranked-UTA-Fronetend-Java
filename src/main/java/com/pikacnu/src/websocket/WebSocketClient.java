@@ -20,7 +20,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Identifier;
 
 public class WebSocketClient {
-
   public static java.net.http.WebSocket webSocketClient;
   public static final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
   private static final AtomicBoolean isConnecting = new AtomicBoolean(false);
@@ -56,6 +55,8 @@ public class WebSocketClient {
 
     // 初始化所有 handlers
     initializeHandlers();
+
+    serverSessionId = Config.serverId;
 
     connectWebSocket();
   }

@@ -1,11 +1,13 @@
 package com.pikacnu;
 
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
+import net.minecraft.server.network.ServerPlayerEntity;
 
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -32,11 +34,15 @@ public class UTA2 implements ModInitializer {
 	public void onInitialize() {
 		LOGGER.info("Hello Fabric world!");
 
+		Config.init();
+
 		ServerLifecycleEvents.SERVER_STARTED.register(this::onServerStarted);
 		ServerLifecycleEvents.SERVER_STOPPING.register(this::onServerStopping);
 
 		ServerPlayConnectionEvents.JOIN.register(this::onPlayerJoin);
 		ServerPlayConnectionEvents.DISCONNECT.register(this::onPlayerDisconnect);
+
+		ServerPlayerEvents.JOIN.register(this::onPlayerLoad);
 
 		Command.init();
 		executorService.scheduleAtFixedRate(() -> {
@@ -64,6 +70,7 @@ public class UTA2 implements ModInitializer {
 		executorService.shutdown();
 		WebSocketClient.scheduler.shutdownNow();
 		PlayerOnlineChecker.scheduler.shutdownNow();
+		Config.saveConfig();
 	}
 
 	private void onPlayerJoin(ServerPlayNetworkHandler handler, PacketSender sender, MinecraftServer server) {
@@ -74,9 +81,12 @@ public class UTA2 implements ModInitializer {
 							handler.getPlayer().getName().getString(), 0));
 			PlayerDatabase.updatePlayerDataFromServer(handler.getPlayer().getUuid().toString(),
 					handler.getPlayer().getName().getString());
-		} else {
-			PlayerOnlineChecker.addPlayer(handler.getPlayer().getUuid().toString());
 		}
+	}
+
+	private void onPlayerLoad(ServerPlayerEntity player) {
+		LOGGER.info("Player loaded: " + player.getName().getString());
+		PlayerOnlineChecker.addPlayer(player.getUuid().toString());
 	}
 
 	private void onPlayerDisconnect(ServerPlayNetworkHandler handler, MinecraftServer server) {

@@ -18,22 +18,28 @@ public class Payload {
   public PlayerData player;
   public PartyData party;
 
-  public static class LobbyData {
+  public static class handshakeData {
     public boolean isLobby;
+    public String serverIP;
+    public Integer serverPort;
+    public String sessionId;
 
-    public LobbyData() {
+    public handshakeData() {
     }
 
-    public LobbyData(boolean isLobby) {
+    public handshakeData(boolean isLobby, String serverIP, Integer serverPort, String sessionId) {
       this.isLobby = isLobby;
+      this.serverIP = serverIP;
+      this.serverPort = serverPort;
+      this.sessionId = sessionId;
     }
   }
 
-  public LobbyData lobby;
+  public handshakeData handshake;
 
   public static class TeamData {
     public String team;
-    public String[] uuids;
+    public String[] names;
 
     public TeamData() {
     }
