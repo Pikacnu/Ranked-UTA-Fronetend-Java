@@ -27,7 +27,7 @@ public class PlayerKilledCommand implements ICommand {
                         .suggests((context, builder) -> {
                           // Suggest attacker types
                           for (KillType type : KillType.values()) {
-                            builder.suggest(type.getString());
+                            builder.suggest(type.toString().toLowerCase());
                           }
                           return builder.buildFuture();
                         })

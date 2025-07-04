@@ -13,9 +13,6 @@ public class Kill {
   public String attacker;
   public String assists;
 
-  public Kill() {
-  }
-
   public Kill(String target, KillType type, String attacker, String assists) {
     this.target = target;
     this.type = type;

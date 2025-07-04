@@ -27,13 +27,12 @@ public class WhitelistHandler extends BaseHandler {
     }
 
     for (WhitelistEntry player : payload.whitelist) {
-      if (player.uuid == null || player.uuid.isEmpty() || player.minecraftId == null
-          || player.minecraftId.isEmpty()) {
+      if (player.uuid() == null || player.uuid().isEmpty() || player.minecraftId() == null || player.minecraftId().isEmpty()) {
         UTA2.LOGGER.warn("Received WHILELIST_CHANGE message with empty UUID");
         continue;
       }
       try {
-        WhiteListManager.addPlayerToWhitelist(player.uuid, player.minecraftId);
+        WhiteListManager.addPlayerToWhitelist(player.uuid(), player.minecraftId());
       } catch (Exception e) {
         UTA2.LOGGER.error("Failed to add player to whitelist: " + e.getMessage());
       }
@@ -43,6 +42,6 @@ public class WhitelistHandler extends BaseHandler {
 
   @Override
   public Action getActionType() {
-    return Action.WHILELIST_CHANGE;
+    return Action.WHITELIST_CHANGE;
   }
 }

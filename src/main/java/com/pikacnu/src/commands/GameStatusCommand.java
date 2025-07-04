@@ -22,7 +22,7 @@ public class GameStatusCommand implements ICommand {
             CommandManager.argument("status", IntegerArgumentType.integer(0, 6))
                 .executes(context -> {
                   try {
-                    Integer status = IntegerArgumentType.getInteger(context, "status");
+                    int status = IntegerArgumentType.getInteger(context, "status");
 
                     // Create game status object
                     GameStatus gameStatusData = new GameStatus(status);
