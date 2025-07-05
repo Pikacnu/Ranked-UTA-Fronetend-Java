@@ -25,17 +25,17 @@ public class Payload {
 
   public LobbyData lobby;
 
-  public record TeamData(String team, String[] names) {
+  public static record TeamData(String team, String[] names) {
   }
 
   public TeamData[] teamData;
 
-  public record QueueData(String queue_name, String uuid, ArrayList<ArrayList<PartyData>> parties) {
+  public static record QueueData(String queue_name, String uuid, ArrayList<ArrayList<PartyData>> parties) {
   }
 
   public QueueData queue;
 
-  public record WhitelistEntry(String uuid, String minecraftId) {
+  public static record WhitelistEntry(String uuid, String minecraftId) {
   }
 
   public ArrayList<WhitelistEntry> whitelist;

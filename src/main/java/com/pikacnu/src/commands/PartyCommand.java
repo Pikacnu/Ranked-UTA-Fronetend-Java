@@ -1,10 +1,13 @@
 package com.pikacnu.src.commands;
 
+import java.util.ArrayList;
+
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.command.CommandManager;
@@ -15,6 +18,10 @@ import com.pikacnu.UTA2;
 import com.pikacnu.src.PartyDatabase;
 import com.pikacnu.src.PartyDatabase.PartyData;
 import com.pikacnu.src.PartyDatabase.PartyResultMessage;
+import com.pikacnu.src.json.Action;
+import com.pikacnu.src.json.data.*;
+import com.pikacnu.src.json.data.Payload.QueueData;
+import com.pikacnu.src.websocket.WebSocketClient;
 
 public class PartyCommand implements ICommand {
 	private final String[] partyActions = {
@@ -61,13 +68,34 @@ public class PartyCommand implements ICommand {
 			PartyData party = PartyDatabase.getPartyData(playerUuid);
 
 			if (party == null) {
-				source.sendError(Text.literal(PartyResultMessage.PLAYER_NOT_IN_PARTY.getMessage()).withColor(0xFF0000));
+				source.sendError(Text
+						.literal(PartyResultMessage.PLAYER_NOT_IN_PARTY.getMessage().replace("{target}",
+								String.valueOf(player.getDisplayName().getString())))
+						.withColor(0xFF0000));
 				return 0;
 			}
 
 			if (party.isInQueue) {
-				source.sendError(Text.literal(PartyResultMessage.SHOULD_LEAVE_QUEUE.toString()).withColor(0xFF0000));
-				return 0;
+				// source.sendError(Text.literal(PartyResultMessage.SHOULD_LEAVE_QUEUE.getMessage()).withColor(0xFF0000));
+
+				if (party.partyMembers.size() == 1
+						&& party.partyMembers.get(0).minecraftId.equals(player.getName().getString())) {
+					// If the player is the only member in the party, disband the party.
+					// Prepare for if the party update in queue have problem.
+					Payload payload = new Payload();
+					payload.queue = new QueueData("leave", playerUuid, new ArrayList<>());
+					Message socketMessage = new Message(Action.queue_leave, payload);
+					WebSocketClient.sendMessage(socketMessage);
+
+					party.disbandParty();
+
+					source.sendMessage(Text.literal("你已經離開隊伍，因為你是唯一的成員。").withColor(0x00FF00));
+					return 1;
+				}
+
+				// party.isInQueue = false;
+				// source.sendError(Text.literal("你已經離開隊列，請重新加入隊伍。").withColor(0xFF0000));
+				// return 0;
 			}
 
 			switch (action) {
@@ -181,8 +209,9 @@ public class PartyCommand implements ICommand {
 
 			source.sendMessage(
 					Text.literal(message.getMessage()
-							.replace("{target}", String.valueOf(EntityArgumentType.getPlayer(context, "target").getDisplayName()))
-							.replace("{inviter}", String.valueOf(player.getDisplayName()))).withColor(0x00FF00));
+							.replace("{target}",
+									String.valueOf(EntityArgumentType.getPlayer(context, "target").getDisplayName().getString()))
+							.replace("{inviter}", String.valueOf(player.getDisplayName().getString()))).withColor(0x00FF00));
 			return 1;
 		}
 	}

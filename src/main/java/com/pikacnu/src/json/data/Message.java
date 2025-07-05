@@ -3,6 +3,7 @@ package com.pikacnu.src.json.data;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
+import com.pikacnu.Config;
 import com.pikacnu.src.json.Action;
 import com.pikacnu.src.json.JsonUtils;
 import com.pikacnu.src.json.Status;
@@ -26,6 +27,10 @@ public class Message {
 
 	public Message(Action action, String sessionId) {
 		this(action, sessionId, null);
+	}
+
+	public Message(Action action, Payload payload) {
+		this(action, Config.serverId, payload);
 	}
 
 	/**

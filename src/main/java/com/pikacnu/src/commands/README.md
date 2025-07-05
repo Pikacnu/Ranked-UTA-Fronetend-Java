@@ -37,7 +37,7 @@ src/main/java/com/pikacnu/src/commands/
 - **get_data** - Retrieve data with function execution
 
 ### Player Management Commands
-- **queue** - Join/leave game queues with modes (solo, duo, squad, stige)
+- **queue** - Join/leave game queues with modes (solo, duo, trio, stige)
 - **party** - Manage party invitations and membership
 
 ## Adding New Commands

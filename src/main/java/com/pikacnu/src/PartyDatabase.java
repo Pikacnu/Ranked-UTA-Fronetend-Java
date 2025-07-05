@@ -345,7 +345,8 @@ public class PartyDatabase {
     }
     server.getPlayerManager().getPlayer(UUID.fromString(targetUuid))
         .sendMessage(Text
-            .literal("You have received an invitation from " + inviter.minecraftId)
+            .literal("你已經收到來自 " + inviter.minecraftId + " 的隊伍邀請，請在30秒內使用 /party accept " + inviter.minecraftId +
+                " 接受邀請")
             .withColor(0x00FF00), false);
     partyInvitions.add(new PartyInvition(partyId, targetUuid, inviterUuid));
     return PartyResultMessage.PLAYER_INVITATION_SENT;
@@ -377,7 +378,7 @@ public class PartyDatabase {
           });
           server.getPlayerManager().getPlayer(UUID.fromString(inviterUuid))
               .sendMessage(
-                  Text.literal("Invitation accepted by " + PlayerDatabase.getPlayerData(targetUuid).minecraftId)
+                  Text.literal("邀請被 " + PlayerDatabase.getPlayerData(targetUuid).minecraftId + " 接受了")
                       .withColor(0x00FF00),
                   false);
           partyInvitions.removeAll(othersInvitations); // Remove all other invitations for the target player
@@ -403,7 +404,7 @@ public class PartyDatabase {
         partyInvitions.remove(invitation);
         server.getPlayerManager().getPlayer(UUID.fromString(inviterUuid))
             .sendMessage(Text.literal(PlayerDatabase.getPlayerData(targetUuid).minecraftId).withColor(0xFF0000).append(
-                Text.literal(" has Rejected Your Invitation")), false);
+                Text.literal(" 否定了你的邀請")), false);
         return PartyResultMessage.PLAYER_INVITATION_REJECTED;
       }
     }
@@ -434,17 +435,13 @@ public class PartyDatabase {
     for (PartyInvition invitation : expiredInvitations) {
       partyInvitions.remove(invitation);
       server.getPlayerManager().getPlayer(UUID.fromString(invitation.inviterUuid))
-          .sendMessage(Text.literal("Invitation to " + PlayerDatabase.getPlayerData(invitation.targetUuid).minecraftId +
-              " has expired.").withColor(0xFF0000), false);
+          .sendMessage(Text.literal("你對 " + PlayerDatabase.getPlayerData(invitation.targetUuid).minecraftId +
+              " 的邀請已經過期").withColor(0xFF0000), false);
       PartyData party = getPartyData(invitation.partyId);
       ServerPlayerEntity inviter = server.getPlayerManager().getPlayer(UUID.fromString(invitation.inviterUuid));
       ServerPlayerEntity targetPlayer = server.getPlayerManager().getPlayer(UUID.fromString(invitation.targetUuid));
-      if (inviter != null) {
-        inviter.sendMessage(Text.literal("Your invitation to " + targetPlayer.getName().getString() + " has expired.")
-            .withColor(0xFF0000), false);
-      }
       if (targetPlayer != null) {
-        targetPlayer.sendMessage(Text.literal("You have missed the invitation from " + inviter.getName().getString())
+        targetPlayer.sendMessage(Text.literal("你錯過了來自 " + inviter.getName().getString() + " 的邀請。")
             .withColor(0xFF0000), false);
       }
       if (party != null && party.partyMembers.size() == 1 && party.isPartyLeader(invitation.inviterUuid)) {

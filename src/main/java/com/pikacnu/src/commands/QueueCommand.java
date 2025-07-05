@@ -26,7 +26,7 @@ public class QueueCommand implements ICommand {
         CommandManager.literal("queue")
             .then(CommandManager.argument("action", StringArgumentType.word())
                 .suggests((context, builder) -> {
-                  String[] actions = { "leave", "solo", "duo", "squad", "siege" };
+                  String[] actions = { "leave", "solo", "duo", "trio", "siege" };
                   for (String action : actions) {
                     builder.suggest(action);
                   }
@@ -37,14 +37,14 @@ public class QueueCommand implements ICommand {
                   if (action == null || action.isEmpty()) {
                     context.getSource()
                         .sendError(Text.literal(
-                            "指定的操作無效。請使用 /queue <操作>，其中操作為以下之一：leave、solo、duo、squad、siege")
+                            "指定的操作無效。請使用 /queue <操作>，其中操作為以下之一：leave、solo、duo、trio、siege")
                             .withColor(0xFF0000));
                     return 0; // Return 0 to indicate failure
                   }
 
                   Payload payload = new Payload();
 
-                  String[] validActions = { "leave", "solo", "duo", "squad", "siege" };
+                  String[] validActions = { "leave", "solo", "duo", "trio", "siege" };
                   boolean isValidAction = false;
                   for (String validAction : validActions) {
                     if (validAction.equals(action)) {
@@ -118,8 +118,8 @@ public class QueueCommand implements ICommand {
                       context.getSource().sendError(Text.literal("您不能在隊伍中使用 duo 佇列。"));
                       return 0; // Return 0 to indicate failure
                     }
-                    if (action.equals("squad") && playerCount > 4) {
-                      context.getSource().sendError(Text.literal("您不能在隊伍中使用 squad 佇列。"));
+                    if (action.equals("trio") && playerCount > 3) {
+                      context.getSource().sendError(Text.literal("您不能在隊伍中使用 trio 佇列。"));
                       return 0; // Return 0 to indicate failure
                     }
                     if (action.equals("siege") && playerCount > 4) {
