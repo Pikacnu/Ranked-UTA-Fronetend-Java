@@ -40,7 +40,7 @@ public class Payload {
 
   public ArrayList<WhitelistEntry> whitelist;
 
-  public record handshakeData(boolean isLobby, String minecraftServerIP, Integer minecraftServerPort,
+  public record handshakeData(boolean isLobby, String serverIP, Integer serverPort,
       String sessionId) {
   }
 

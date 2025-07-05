@@ -8,6 +8,7 @@ import com.pikacnu.src.PlayerDatabase.PlayerData;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.ClickEvent;
 import net.minecraft.text.Text;
 import com.pikacnu.src.json.*;
 import com.pikacnu.src.json.data.*;
@@ -115,8 +116,8 @@ public class PartyDatabase {
         }
       }
       partyMembers.clear();
-      partyLeaderUUID = null; // Clear party leader UUID
       updateToServer(Action.party_disbanded); // Notify server about disbanding
+      partyLeaderUUID = null; // Clear party leader UUID
       removeParty(partyId); // Remove the party from the database
     }
 
@@ -272,7 +273,9 @@ public class PartyDatabase {
    */
   public static PartyData createParty(String leaderUuid) {
     PartyData newParty = new PartyData();
-    newParty.partyId = (int) System.currentTimeMillis();
+    newParty.partyId = (int) System.currentTimeMillis() + (int) (Math.random() * 5000); // Unique party ID based on
+                                                                                        // current time and random
+                                                                                        // number
     newParty.partyMembers = new ArrayList<>();
     newParty.partyLeaderUUID = leaderUuid;
     PlayerData leader = PlayerDatabase.getPlayerData(leaderUuid);
@@ -345,9 +348,13 @@ public class PartyDatabase {
     }
     server.getPlayerManager().getPlayer(UUID.fromString(targetUuid))
         .sendMessage(Text
-            .literal("你已經收到來自 " + inviter.minecraftId + " 的隊伍邀請，請在30秒內使用 /party accept " + inviter.minecraftId +
-                " 接受邀請")
-            .withColor(0x00FF00), false);
+            .literal("你已經收到來自 " + inviter.minecraftId + " 的隊伍邀請，請在30秒內使用")
+            .withColor(0x00FF00).append(
+                Text.literal("/party accept " + inviter.minecraftId +
+                    " 接受邀請").withColor(0x00FF00).styled(
+                        style -> style.withClickEvent(
+                            new ClickEvent.SuggestCommand("/party accept " + inviter.minecraftId)))),
+            false);
     partyInvitions.add(new PartyInvition(partyId, targetUuid, inviterUuid));
     return PartyResultMessage.PLAYER_INVITATION_SENT;
   }
@@ -463,7 +470,7 @@ public class PartyDatabase {
    * 隊伍操作結果訊息。
    */
   public enum PartyResultMessage {
-    PARTY_JOINED("{target}加入了隊伍"),
+    PARTY_JOINED("加入了{target}的隊伍"),
     PARTY_LEFT("{target}離開了隊伍"),
     PARTY_DISBANDED("隊伍已解散"),
     PARTY_NOT_FOUND("無效的隊伍"),

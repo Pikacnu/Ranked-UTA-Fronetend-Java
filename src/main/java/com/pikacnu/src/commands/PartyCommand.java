@@ -67,6 +67,10 @@ public class PartyCommand implements ICommand {
 			PartyDatabase.PartyResultMessage message;
 			PartyData party = PartyDatabase.getPartyData(playerUuid);
 
+			if ("invite".equals(action)) {
+				source.sendError(Text.literal("只有 leave 參數能夠不使用目標。").withColor(0xFF0000));
+			}
+
 			if (party == null) {
 				source.sendError(Text
 						.literal(PartyResultMessage.PLAYER_NOT_IN_PARTY.getMessage().replace("{target}",
