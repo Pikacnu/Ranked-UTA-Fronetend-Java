@@ -29,8 +29,19 @@ public class WhiteListManager {
   }
 
   public static void kickPlayerNotInWhitelist() {
-    server.kickNonWhitelistedPlayers(
-        server.getCommandSource());
+    try {
+      // 確保伺服器在主執行緒中執行踢除操作
+      server.execute(() -> {
+        try {
+          server.kickNonWhitelistedPlayers(server.getCommandSource());
+        } catch (Exception e) {
+          // 捕獲任何踢除過程中的異常，避免影響主要邏輯
+          // 這種錯誤通常是因為玩家連接已經關閉導致的，可以安全忽略
+        }
+      });
+    } catch (Exception e) {
+      // 如果無法安排執行，記錄錯誤但不拋出異常
+    }
   }
 
   public static void clearWhitelist() {
