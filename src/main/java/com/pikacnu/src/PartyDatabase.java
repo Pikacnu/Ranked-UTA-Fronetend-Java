@@ -430,6 +430,16 @@ public class PartyDatabase {
     return null; // No invitation found for the target player
   }
 
+  public static ArrayList<PartyInvition> getInvitations(String targetUuid) {
+    ArrayList<PartyInvition> invitations = new ArrayList<>();
+    for (PartyInvition invitation : partyInvitions) {
+      if (invitation.targetUuid.equals(targetUuid)) {
+        invitations.add(invitation); // Collect all invitations for the specified party and target player
+      }
+    }
+    return invitations; // No invitation found for the specified party and target player
+  }
+
   /**
    * 清除過期的隊伍邀請。
    */

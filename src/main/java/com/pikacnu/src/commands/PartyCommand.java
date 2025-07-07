@@ -1,6 +1,7 @@
 package com.pikacnu.src.commands;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
@@ -17,6 +18,7 @@ import net.minecraft.text.Text;
 import com.pikacnu.UTA2;
 import com.pikacnu.src.PartyDatabase;
 import com.pikacnu.src.PartyDatabase.PartyData;
+import com.pikacnu.src.PartyDatabase.PartyInvition;
 import com.pikacnu.src.PartyDatabase.PartyResultMessage;
 import com.pikacnu.src.json.Action;
 import com.pikacnu.src.json.data.*;
@@ -68,7 +70,35 @@ public class PartyCommand implements ICommand {
 			PartyData party = PartyDatabase.getPartyData(playerUuid);
 
 			if ("invite".equals(action)) {
-				source.sendError(Text.literal("只有 leave 參數能夠不使用目標。").withColor(0xFF0000));
+				source.sendError(Text.literal("只有 leave 或 accept 參數能夠不使用目標。").withColor(0xFF0000));
+			}
+
+			if ("accept".equals(action) || "reject".equals(action)) {
+				ArrayList<PartyInvition> invitation = PartyDatabase.getInvitations(playerUuid);
+				if (invitation.isEmpty()) {
+					source.sendError(Text.literal("你沒有收到任何邀請。").withColor(0xFF0000));
+					return 0;
+				}
+				if (invitation.size() > 1) {
+					source.sendError(Text.literal("你收到多個邀請，請使用 /party invite <player> 來指定目標。").withColor(0xFF0000));
+					return 0;
+				}
+				PartyInvition inv = invitation.get(0);
+				if (inv.inviterUuid.equals(playerUuid)) {
+					source.sendError(Text.literal("你不能接受或拒絕自己的邀請。").withColor(0xFF0000));
+					return 0;
+				}
+				PartyResultMessage resultMessage = PartyDatabase.AcceptInvitation(inv.targetUuid, playerUuid);
+				if (resultMessage == null) {
+					source.sendError(Text.literal("接受邀請失敗！").withColor(0xFF0000));
+					return 0;
+				}
+				source.sendMessage(Text.literal(resultMessage.getMessage()
+						.replace("{target}", String.valueOf(player.getDisplayName().getString()))
+						.replace("{inviter}",
+								String.valueOf(source.getServer().getPlayerManager().getPlayer(UUID.fromString(inv.inviterUuid))
+										.getName().getString())))
+						.withColor(0x00FF00));
 			}
 
 			if (party == null) {
