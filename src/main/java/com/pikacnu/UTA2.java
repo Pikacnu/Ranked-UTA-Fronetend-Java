@@ -51,10 +51,13 @@ public class UTA2 implements ModInitializer {
 
 	private void onServerStarted(MinecraftServer server) {
 		UTA2.server = server;
+		// 初始化伺服器實例
 		WebSocketClient.init(server); // 初始化 WebSocket 連接
-		PartyDatabase.server = server; // 設定 PartyDatabase 的伺服器實例
 		WhiteListManager.server = server; // 設定 WhiteListManager 的伺服器實例
+		// Lobby 伺服器初始化
+		PartyDatabase.server = server; // 設定 PartyDatabase 的伺服器實例
 		ActionBarController.initialize(server); // 初始化 ActionBar 控制器
+
 		LOGGER.info("Server started, instance acquired");
 	}
 
@@ -70,6 +73,7 @@ public class UTA2 implements ModInitializer {
 		executorService.shutdown();
 		WebSocketClient.scheduler.shutdownNow();
 		PlayerOnlineChecker.scheduler.shutdownNow();
+		ActionBarController.shutdown(); // 關閉 ActionBar 控制器
 		Config.saveConfig();
 	}
 
@@ -108,6 +112,7 @@ public class UTA2 implements ModInitializer {
 
 		// 大廳伺服器
 		PlayerDatabase.removePlayerData(playerUUID);
+		ActionBarController.removeActionBarMessage(playerUUID);
 		PartyDatabase.PartyData party = PartyDatabase.getPartyData(playerUUID);
 		if (party == null) {
 			LOGGER.info("No party found for player: {}", playerName);

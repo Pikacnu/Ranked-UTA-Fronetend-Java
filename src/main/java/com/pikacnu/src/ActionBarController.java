@@ -1,6 +1,7 @@
 package com.pikacnu.src;
 
 import java.util.ArrayList;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -37,7 +38,7 @@ public class ActionBarController {
         actionBarQueue.forEach(data -> {
           Text message = data.message;
           String playerUUID = data.playerUUID;
-          ServerPlayerEntity player = server.getPlayerManager().getPlayer(playerUUID);
+          ServerPlayerEntity player = server.getPlayerManager().getPlayer(UUID.fromString(playerUUID));
           OverlayMessageS2CPacket packet = new OverlayMessageS2CPacket(message);
           try {
             player.networkHandler.sendPacket(packet);
