@@ -7,6 +7,7 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 
+import com.pikacnu.UTA2;
 import com.pikacnu.src.StorageNbtHelper;
 import com.pikacnu.src.websocket.WebSocketClient;
 import com.pikacnu.src.json.Action;
@@ -37,11 +38,19 @@ public class SendDataCommand implements ICommand {
                             StorageData storageData = new StorageData(storage, "data", nbtResult);
 
                             // Send the storage data
-                            Payload payload = new Payload();
-                            payload.data = storageData;
-                            Message wsMessage = new Message(Action.fromString(type),
-                                WebSocketClient.serverSessionId, payload);
-                            WebSocketClient.sendMessage(wsMessage);
+                            try {
+
+                              Payload payload = new Payload();
+                              payload.data = storageData;
+                              Message wsMessage = new Message(Action.fromString(type),
+                                  WebSocketClient.serverSessionId, payload);
+                              WebSocketClient.sendMessage(wsMessage);
+                            } catch (Exception e) {
+                              UTA2.LOGGER.error("Failed to send storage data event!", e.getStackTrace().toString());
+                              context.getSource().sendError(
+                                  Text.literal("Failed to send storage data event!").withColor(0xFF0000));
+                              return 0; // Return 0 to indicate failure
+                            }
 
                             context.getSource().sendMessage(Text
                                 .literal("Storage data event sent successfully!").withColor(0x00FF00));

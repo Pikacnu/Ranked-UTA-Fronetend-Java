@@ -6,17 +6,11 @@ package com.pikacnu.src.json;
 public enum Action {
   connect,
   disconnect,
-  command,
   error,
-  kill,
-  damage,
-  map_choose,
-  storage_data,
-  client_id,
-  team_info,
-  team_join,
   heartbeat,
   handshake,
+  command,
+
   request_data,
   get_player_data,
   party,
@@ -24,15 +18,26 @@ public enum Action {
   queue,
   queue_leave,
   queue_match,
+
+  kill,
+  damage,
+  map_choose,
+  storage_data,
+  team_info,
+  team_join,
   whitelist,
   whitelist_change,
   whitelist_remove,
   whitelist_check,
   transfer,
+  client_id,
 
   player_info,
   output_win,
+  output_info,
   game_status,
+
+  game_state,
 
   player_online_status;
 

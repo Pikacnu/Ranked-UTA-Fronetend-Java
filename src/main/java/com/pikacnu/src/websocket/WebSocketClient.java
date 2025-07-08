@@ -131,7 +131,7 @@ public class WebSocketClient {
             UTA2.LOGGER.info("WebSocket closed: " + statusCode + " - " + reason);
             WebSocketClient.webSocketClient = null;
             isConnecting.set(false);
-
+            shouldReconnect.set(true);
             if (shouldReconnect.get()) {
               scheduleReconnect();
             }
