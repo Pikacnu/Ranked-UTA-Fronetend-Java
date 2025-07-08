@@ -16,6 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.pikacnu.src.*;
 import com.pikacnu.src.websocket.WebSocketClient;
 
@@ -43,15 +44,17 @@ public class UTA2 implements ModInitializer {
 		ServerPlayerEvents.JOIN.register(this::onPlayerLoad);
 
 		Command.init();
+
 		executorService.scheduleAtFixedRate(PartyDatabase::schedulePartyInvitationCleanup,
 				0, 1, TimeUnit.SECONDS); // 每秒執行
 	}
 
 	private void onServerStarted(MinecraftServer server) {
 		UTA2.server = server;
-		WebSocketClient.init(server);
-		PartyDatabase.server = server;
-		WhiteListManager.server = server;
+		WebSocketClient.init(server); // 初始化 WebSocket 連接
+		PartyDatabase.server = server; // 設定 PartyDatabase 的伺服器實例
+		WhiteListManager.server = server; // 設定 WhiteListManager 的伺服器實例
+		ActionBarController.initialize(server); // 初始化 ActionBar 控制器
 		LOGGER.info("Server started, instance acquired");
 	}
 
@@ -109,6 +112,12 @@ public class UTA2 implements ModInitializer {
 		if (party == null) {
 			LOGGER.info("No party found for player: {}", playerName);
 			return;
+		}
+		if (QueueDatabase.isInQueue(party.partyId)) {
+			QueueDatabase.updateAndRemoveQueueData(party.partyId, QueueDatabase.QueueType.leave, playerUUID);
+			LOGGER.info("Player removed from queue: {}", playerName);
+		} else {
+			LOGGER.info("Player not in queue: {}", playerName);
 		}
 
 		party.removePlayer(playerUUID);

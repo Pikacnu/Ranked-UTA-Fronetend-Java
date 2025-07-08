@@ -174,13 +174,18 @@ public class PartyDatabase {
      * 移除隊伍中的玩家。
      */
     public PartyResultMessage removePlayer(String uuid) {
+      return removePlayer(uuid, true); // Default to sending update to server
+    }
+
+    public PartyResultMessage removePlayer(String uuid, boolean isSendToServer) {
       if (!isInParty(uuid)) {
         return PartyResultMessage.PLAYER_NOT_IN_PARTY; // Player is not in the party
       }
 
       if (partyMembers.size() <= 2) {
         this.disbandParty(); // If only one member left, disband the party
-        updateToServer(Action.party_disbanded); // Notify server about disbanding
+        if (isSendToServer)
+          updateToServer(Action.party_disbanded); // Notify server about disbanding
         return PartyResultMessage.PARTY_DISBANDED; // Successfully disbanded the party
       }
 
@@ -210,12 +215,13 @@ public class PartyDatabase {
 
       if (partyMembers.isEmpty()) {
         disbandParty(); // If no members left, disband the party
-        updateToServer(Action.party_disbanded); // Notify server about disbanding
+        if (isSendToServer)
+          updateToServer(Action.party_disbanded); // Notify server about disbanding
         removeParty(partyId); // Remove the party from the database
         return PartyResultMessage.PARTY_DISBANDED; // Successfully disbanded the party
       }
-
-      updateToServer(); // Update the party data to the server after removing the player
+      if (isSendToServer)
+        updateToServer(); // Update the party data to the server after removing the player
 
       return PartyResultMessage.PARTY_LEFT; // Successfully removed player from the party
     }
@@ -255,6 +261,15 @@ public class PartyDatabase {
   public PartyDatabase(
       MinecraftServer server) {
     PartyDatabase.server = server;
+  }
+
+  public static boolean isPartyExists(int partyId) {
+    for (PartyData party : partyList) {
+      if (party.partyId == partyId) {
+        return true; // Party exists
+      }
+    }
+    return false; // Party does not exist
   }
 
   /**

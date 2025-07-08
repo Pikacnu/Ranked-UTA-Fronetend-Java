@@ -6,17 +6,13 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 
+import com.pikacnu.src.ActionBarController;
 import com.pikacnu.src.PartyDatabase;
 import com.pikacnu.src.PlayerDatabase;
+import com.pikacnu.src.QueueDatabase;
 import com.pikacnu.src.PlayerDatabase.PlayerData;
-import com.pikacnu.src.websocket.WebSocketClient;
+import com.pikacnu.src.QueueDatabase.QueueType;
 import com.pikacnu.src.PartyDatabase.PartyData;
-import com.pikacnu.src.json.Action;
-import com.pikacnu.src.json.data.Message;
-import com.pikacnu.src.json.data.Payload;
-import com.pikacnu.src.json.data.Payload.QueueData;
-
-import java.util.ArrayList;
 
 public class QueueCommand implements ICommand {
   @Override
@@ -42,8 +38,6 @@ public class QueueCommand implements ICommand {
                     return 0; // Return 0 to indicate failure
                   }
 
-                  Payload payload = new Payload();
-
                   String[] validActions = { "leave", "solo", "duo", "trio", "siege" };
                   boolean isValidAction = false;
                   for (String validAction : validActions) {
@@ -61,8 +55,6 @@ public class QueueCommand implements ICommand {
                   // Create queue object
                   if (action.equals("leave")) {
                     context.getSource().sendFeedback(() -> Text.literal("您已離開佇列。"), false);
-                    QueueData queueData = new QueueData("leave", context.getSource().getPlayer().getUuidAsString(),
-                        new ArrayList<>());
                     PartyData party = PartyDatabase.getPartyData(context.getSource().getPlayer().getUuidAsString());
                     if (party != null) {
                       party.isInQueue = false;
@@ -70,6 +62,7 @@ public class QueueCommand implements ICommand {
                         PlayerData memberData = PlayerDatabase.getPlayerData(member.uuid);
                         if (memberData != null) {
                           memberData.isInQueue = false;
+                          ActionBarController.removeActionBarMessage(member.uuid);
                           PlayerDatabase.updatePlayerData(memberData);
                         }
                       });
@@ -81,7 +74,9 @@ public class QueueCommand implements ICommand {
                         context.getSource().sendFeedback(() -> Text.literal("您的隊伍已離開佇列。"), false);
                       }
                     }
-                    payload.queue = queueData;
+                    QueueDatabase.updateQueueData(party.partyId, QueueType.leave,
+                        context.getSource().getPlayer().getUuidAsString());
+                    QueueDatabase.removeQueueData(party.partyId);
                   } else {
                     PlayerData player = PlayerDatabase.getPlayerData(context.getSource().getPlayer().getUuidAsString());
 
@@ -137,21 +132,16 @@ public class QueueCommand implements ICommand {
                       PlayerData memberData = PlayerDatabase.getPlayerData(member.uuid);
                       if (memberData != null) {
                         memberData.isInQueue = true;
+                        ActionBarController.addActionBarMessage(
+                            Text.literal("您的隊伍已加入佇列: " + action), member.uuid);
                         PlayerDatabase.updatePlayerData(memberData);
                       }
                     });
 
-                    payload.queue = new QueueData(action, context.getSource().getPlayer().getUuidAsString(),
-                        new ArrayList<>());
+                    QueueDatabase.addQueueData(party.partyId, QueueDatabase.QueueType.valueOf(action));
+                    QueueDatabase.updateQueueData(party.partyId, QueueDatabase.QueueType.valueOf(action),
+                        context.getSource().getPlayer().getUuidAsString());
                   }
-                  Action actionType;
-                  if (action.equals("leave")) {
-                    actionType = Action.queue_leave;
-                  } else {
-                    actionType = Action.queue;
-                  }
-                  Message wsMessage = new Message(actionType, WebSocketClient.serverSessionId, payload);
-                  WebSocketClient.sendMessage(wsMessage);
                   return 1; // Return 1 to indicate success
                 })));
   }
