@@ -30,7 +30,7 @@ public class QueueDatabase {
     payload.queue = new Payload.QueueData(
         queueType.name(), executorUuid,
         new ArrayList<>());
-    Action action = queueType == QueueType.leave ? Action.queue_leave : Action.queue_match;
+    Action action = queueType == QueueType.leave ? Action.queue_leave : Action.queue;
     Message message = new Message(action, payload);
     WebSocketClient.sendMessage(message);
   }
