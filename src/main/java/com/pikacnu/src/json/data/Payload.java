@@ -5,6 +5,7 @@ import com.google.gson.JsonSyntaxException;
 import com.pikacnu.src.json.JsonUtils;
 import com.pikacnu.src.PartyDatabase.PartyData;
 import com.pikacnu.src.PlayerDatabase.PlayerData;
+import com.pikacnu.src.PlayerSettingsDatabase.PlayerSettingsEntry;
 
 public class Payload {
   public String command;
@@ -76,6 +77,8 @@ public class Payload {
   }
 
   public TransferData transferData;
+
+  public PlayerSettingsEntry playerSetting;
 
   public Payload(String command, String[] commands, String message, String[] data) {
     this.command = command;

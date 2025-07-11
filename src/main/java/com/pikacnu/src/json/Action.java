@@ -4,6 +4,7 @@ package com.pikacnu.src.json;
  * 定義所有支援的動作類型。
  */
 public enum Action {
+  // for websocket connection
   connect,
   disconnect,
   error,
@@ -11,14 +12,20 @@ public enum Action {
   handshake,
   command,
 
+  // request actions
   request_data,
   get_player_data,
+  player_setting,
+  get_player_settings,
+
+  // lobby actions
   party,
   party_disbanded,
   queue,
   queue_leave,
   queue_match,
 
+  // game server actions
   kill,
   damage,
   map_choose,
@@ -30,14 +37,14 @@ public enum Action {
   whitelist_remove,
   whitelist_check,
   transfer,
-  client_id,
-
   player_info,
   output_win,
   output_info,
-  game_status,
+  game_status, // change game status
+  
+  client_id,
 
-  game_state,
+  game_state, //output game state information
 
   player_online_status;
 

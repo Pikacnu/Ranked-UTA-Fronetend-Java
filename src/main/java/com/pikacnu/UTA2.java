@@ -85,7 +85,7 @@ public class UTA2 implements ModInitializer {
 
 		if (!Config.isLobby)
 			return;
-
+		PlayerSettingsDatabase.getPlayerSettingsFromServer(playerUUID);
 		PlayerDatabase.addPlayerData(new PlayerDatabase.PlayerData(playerUUID, playerName, 0));
 		PlayerDatabase.updatePlayerDataFromServer(playerUUID, playerName);
 	}

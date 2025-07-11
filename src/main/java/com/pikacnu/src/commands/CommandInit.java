@@ -21,10 +21,10 @@ public class CommandInit {
 			commands.add(new DamagedCommand());
 			commands.add(new GameStatusCommand());
 			commands.add(new MapChooseCommand());
-			commands.add(new SendDataCommand());
-			commands.add(new GetDataCommand());
 		}
 		// commands.add(new SendWsCommand());
+		commands.add(new SendDataCommand());
+		commands.add(new GetDataCommand());
 		commands.add(new WsStatusCommand());
 		commands.add(new GetPlayerInfo());
 	}

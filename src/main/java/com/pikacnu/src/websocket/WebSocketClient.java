@@ -75,6 +75,7 @@ public class WebSocketClient {
     handlers.add(new ErrorHandler(minecraftServer));
     handlers.add(new DisconnectHandler(minecraftServer));
     handlers.add(new PlayerOnlineStatusHandler(minecraftServer));
+    handlers.add(new GetPlayerSettings(minecraftServer));
     // 可以根據需要添加更多 handlers
   }
 
@@ -208,7 +209,7 @@ public class WebSocketClient {
     if (handler != null) {
       handler.handle(action, status, sessionId, payload);
     } else {
-      UTA2.LOGGER.info("No handler found for action: {} , payload : ", action, payload.toString());
+      UTA2.LOGGER.info("No handler found for action: {} , payload : {}", action, payload.toString());
     }
   }
 
