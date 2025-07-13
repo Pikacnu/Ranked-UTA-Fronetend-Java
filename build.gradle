@@ -22,7 +22,7 @@ loom {
 	splitEnvironmentSourceSets()
 
 	mods {
-		"uta2" {
+		"ranked-uta-mod" {
 			sourceSet sourceSets.main
 			sourceSet sourceSets.client
 		}

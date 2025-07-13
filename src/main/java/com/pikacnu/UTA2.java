@@ -21,10 +21,10 @@ import com.pikacnu.src.*;
 import com.pikacnu.src.websocket.WebSocketClient;
 
 /**
- * UTA2 主模組，負責初始化與伺服器事件註冊。
+ * Ranked-UTA-Mod 主模組，負責初始化與伺服器事件註冊。
  */
 public class UTA2 implements ModInitializer {
-	public static final String MOD_ID = "uta2";
+	public static final String MOD_ID = "ranked-uta-mod";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 	private static MinecraftServer server;
 	private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);

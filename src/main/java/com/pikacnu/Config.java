@@ -63,7 +63,7 @@ public class Config {
       properties.setProperty("minecraftServerIP", minecraftServerIP);
       properties.setProperty("minecraftServerPort", String.valueOf(minecraftServerPort));
 
-      properties.store(fos, "RUTA2 Configuration File");
+      properties.store(fos, "Ranked-UTA-Mod Configuration File");
       UTA2.LOGGER.info("Config saved successfully");
     } catch (IOException e) {
       UTA2.LOGGER.error("Failed to save config", e);

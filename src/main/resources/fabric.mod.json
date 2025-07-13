@@ -1,8 +1,8 @@
 {
 	"schemaVersion": 1,
-	"id": "uta2",
+	"id": "ranked-uta-mod",
 	"version": "${version}",
-	"name": "UTA2",
+	"name": "Ranked-UTA-Mod",
 	"description": "This is an example description! Tell everyone what your mod is about!",
 	"authors": ["Me!"],
 	"contact": {
@@ -10,12 +10,12 @@
 		"sources": "https://github.com/FabricMC/fabric-example-mod"
 	},
 	"license": "CC0-1.0",
-	"icon": "assets/uta2/icon.png",
+	"icon": "assets/ranked-uta-mod/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": ["com.pikacnu.UTA2"]
 	},
-	"mixins": ["uta2.mixins.json"],
+	"mixins": ["ranked-uta-mod.mixins.json"],
 	"depends": {
 		"fabricloader": ">=0.16.14",
 		"minecraft": "~1.21.6",
