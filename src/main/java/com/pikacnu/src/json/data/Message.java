@@ -1,7 +1,5 @@
 package com.pikacnu.src.json.data;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import com.pikacnu.Config;
 import com.pikacnu.src.json.Action;
@@ -48,15 +46,8 @@ public class Message {
 	 * 轉換為 JSON 字串
 	 */
 	public String toJson() {
-		// Convert to JSON, then parse and modify action field
-		String json = JsonUtils.getGson().toJson(this);
-		JsonObject jsonObject = JsonParser.parseString(json).getAsJsonObject();
-
-		if (this.action != null) {
-			jsonObject.addProperty("action", this.action.toString().toLowerCase());
-		}
-
-		return jsonObject.toString();
+		// 現在使用自定義的 ActionTypeAdapter，不需要手動處理 action 字段
+		return JsonUtils.getGson().toJson(this);
 	}
 
 	/**
