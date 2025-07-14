@@ -8,7 +8,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import com.google.gson.JsonSyntaxException;
 import com.pikacnu.src.json.data.Message;
 import com.pikacnu.src.json.Action;
 import com.pikacnu.src.json.Status;
@@ -168,9 +167,9 @@ public class WebSocketClient {
         return;
       }
 
-      Message message = Message.fromJson(messageText);
+      Message message = Message.fromJsonOrNull(messageText);
       if (message == null || message.action == null) {
-        UTA2.LOGGER.error("Failed to parse message: " + messageText);
+        UTA2.LOGGER.error("Failed to parse message or missing action: " + messageText);
         return;
       }
 
@@ -194,7 +193,7 @@ public class WebSocketClient {
       // Handle different message types using handlers
       handleIncomingMessage(action, status, sessionId, payload);
 
-    } catch (JsonSyntaxException e) {
+    } catch (Exception e) {
       UTA2.LOGGER.error("Failed to parse JSON message: " + messageText + " - Error: " + e.getMessage());
     }
   }

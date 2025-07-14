@@ -28,14 +28,30 @@ public class GetPlayerInfo implements ICommand {
     public int run(CommandContext<ServerCommandSource> context) {
       ServerCommandSource source = context.getSource();
       PlayerEntity player = source.getPlayer();
-      Gson gson = new Gson();
-      PlayerData playerData = PlayerDatabase.getPlayerData(player.getUuidAsString());
-      PartyData partyData = PartyDatabase.getPartyData(player.getUuidAsString());
-      source.sendMessage(Text.literal("Player Info \n").withColor(0x00FF00).append(
-          Text.literal(gson.toJson(playerData)).withColor(0xFFFFFF).append(
-              Text.literal("\n").withColor(0xFFFF00)).append(Text.literal("Party Info \n").withColor(0x00FF00)).append(
-                  Text.literal(gson.toJson(partyData)).withColor(0xFFFFFF))));
-      return 1; // Return success
+
+      if (player == null) {
+        source.sendMessage(Text.literal("Command must be executed by a player").withColor(0xFF0000));
+        return 0;
+      }
+
+      try {
+        Gson gson = new Gson();
+        PlayerData playerData = PlayerDatabase.getPlayerData(player.getUuidAsString());
+        PartyData partyData = PartyDatabase.getPartyData(player.getUuidAsString());
+
+        String playerJson = playerData != null ? gson.toJson(playerData) : "null";
+        String partyJson = partyData != null ? gson.toJson(partyData) : "null";
+
+        source.sendMessage(Text.literal("Player Info \n").withColor(0x00FF00).append(
+            Text.literal(playerJson).withColor(0xFFFFFF).append(
+                Text.literal("\n").withColor(0xFFFF00)).append(Text.literal("Party Info \n").withColor(0x00FF00))
+                .append(
+                    Text.literal(partyJson).withColor(0xFFFFFF))));
+        return 1; // Return success
+      } catch (Exception e) {
+        source.sendMessage(Text.literal("Error retrieving player info: " + e.getMessage()).withColor(0xFF0000));
+        return 0;
+      }
     }
   }
 }
