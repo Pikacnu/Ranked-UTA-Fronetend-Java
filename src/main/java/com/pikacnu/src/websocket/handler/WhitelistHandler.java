@@ -21,7 +21,7 @@ public class WhitelistHandler extends BaseHandler {
       return;
     }
 
-    if (payload.whitelist.isEmpty() || payload.whitelist.size() == 0) {
+    if (payload.whitelist.isEmpty()) {
       UTA2.LOGGER.info("Received WHILELIST_CHANGE message with empty whitelist, clearing whitelist");
       WhiteListManager.clearWhitelist();
       return;
@@ -36,7 +36,7 @@ public class WhitelistHandler extends BaseHandler {
       try {
         WhiteListManager.addPlayerToWhitelist(player.uuid(), player.minecraftId());
       } catch (Exception e) {
-        UTA2.LOGGER.error("Failed to add player to whitelist: " + e.getMessage());
+        UTA2.LOGGER.error("Failed to add player to whitelist: {}", e.getMessage());
       }
     }
 
@@ -44,7 +44,7 @@ public class WhitelistHandler extends BaseHandler {
     try {
       WhiteListManager.kickPlayerNotInWhitelist();
     } catch (Exception e) {
-      UTA2.LOGGER.warn("Error while kicking non-whitelisted players (this is usually harmless): " + e.getMessage());
+      UTA2.LOGGER.warn("Error while kicking non-whitelisted players (this is usually harmless): {}", e.getMessage());
     }
   }
 

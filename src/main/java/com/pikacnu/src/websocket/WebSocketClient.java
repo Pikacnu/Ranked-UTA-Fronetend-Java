@@ -90,7 +90,7 @@ public class WebSocketClient {
     HttpClient client = HttpClient.newHttpClient();
     String url = "ws://" + Config.host + ":" + Config.port + Config.path;
 
-    UTA2.LOGGER.info("Connecting to WebSocket: " + url);
+    UTA2.LOGGER.info("Connecting to WebSocket: {}", url);
 
     client.newWebSocketBuilder()
         .buildAsync(URI.create(url), new java.net.http.WebSocket.Listener() {
@@ -120,7 +120,7 @@ public class WebSocketClient {
 
           @Override
           public void onError(java.net.http.WebSocket webSocket, Throwable error) {
-            UTA2.LOGGER.error("WebSocket error: " + error.getMessage());
+            UTA2.LOGGER.error("WebSocket error: {}", error.getMessage());
             isConnecting.set(false);
             shouldReconnect.set(true);
             scheduleReconnect();
@@ -128,7 +128,7 @@ public class WebSocketClient {
 
           @Override
           public CompletionStage<?> onClose(java.net.http.WebSocket webSocket, int statusCode, String reason) {
-            UTA2.LOGGER.info("WebSocket closed: " + statusCode + " - " + reason);
+            UTA2.LOGGER.info("WebSocket closed: {} - {}", statusCode, reason);
             WebSocketClient.webSocketClient = null;
             isConnecting.set(false);
             shouldReconnect.set(true);
@@ -169,7 +169,7 @@ public class WebSocketClient {
 
       Message message = Message.fromJsonOrNull(messageText);
       if (message == null || message.action == null) {
-        UTA2.LOGGER.error("Failed to parse message or missing action: " + messageText);
+        UTA2.LOGGER.error("Failed to parse message or missing action: {}", messageText);
         return;
       }
 
@@ -179,14 +179,14 @@ public class WebSocketClient {
       Payload payload = message.payload;
 
       if (action != Action.heartbeat) {
-        UTA2.LOGGER.info("Parsed message - Action: " + action + ", Status: " + status);
+        UTA2.LOGGER.info("Parsed message - Action: {}, Status: {}", action, status);
       }
 
       if (status == Status.ERROR && payload != null) {
-        UTA2.LOGGER.error("Error status received: " + payload.message + ". In Action: " + action);
+        UTA2.LOGGER.error("Error status received: {}. In Action: {}", payload.message, action);
         return; // Stop processing if error status
       } else if (status == Status.ERROR) {
-        UTA2.LOGGER.error("Error status received with no payload. Action: " + action);
+        UTA2.LOGGER.error("Error status received with no payload. Action: {}", action);
         return; // Stop processing if error status without payload
       }
 
@@ -194,7 +194,7 @@ public class WebSocketClient {
       handleIncomingMessage(action, status, sessionId, payload);
 
     } catch (Exception e) {
-      UTA2.LOGGER.error("Failed to parse JSON message: " + messageText + " - Error: " + e.getMessage());
+      UTA2.LOGGER.error("Failed to parse JSON message: {} - Error: {}", messageText, e.getMessage());
     }
   }
 
@@ -225,12 +225,12 @@ public class WebSocketClient {
       webSocketClient.sendText(message, true)
           .whenComplete((result, ex) -> {
             if (ex != null) {
-              UTA2.LOGGER.error("Failed to send message: " + ex.getMessage());
+              UTA2.LOGGER.error("Failed to send message: {}", ex.getMessage());
             }
           });
     } else {
-      UTA2.LOGGER.warn("WebSocket is not connected, cannot send message: " + message);
-      // Only attempt reconnect if not already connecting
+      UTA2.LOGGER.warn("WebSocket is not connected, cannot send message: {}", message);
+      // Only attempt to reconnect if not already connecting
       if (!isConnecting.get()) {
         UTA2.LOGGER.info("Attempting to reconnect WebSocket before sending message...");
         connectWebSocket();
@@ -264,6 +264,6 @@ public class WebSocketClient {
 
   public static void addTask(String action, Identifier function) {
     taskQueue.add(new Task(action, function));
-    UTA2.LOGGER.info("Task added: " + action + " with function " + function);
+    UTA2.LOGGER.info("Task added: {} with function {}", action, function);
   }
 }

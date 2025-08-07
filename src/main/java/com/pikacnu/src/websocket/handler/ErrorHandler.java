@@ -15,7 +15,7 @@ public class ErrorHandler extends BaseHandler {
   @Override
   public void handle(Action action, Status status, String sessionId, Payload payload) {
     String errorMessage = payload != null ? payload.message : "Unknown error";
-    UTA2.LOGGER.error("Received error message: " + errorMessage);
+    UTA2.LOGGER.error("Received error message: {}", errorMessage);
   }
 
   @Override

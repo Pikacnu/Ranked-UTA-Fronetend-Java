@@ -28,8 +28,7 @@ public class SendWsCommand implements ICommand {
                       context.getSource().sendError(Text.literal("Message cannot be empty!").withColor(0xFF0000));
                       return 0; // Return 0 to indicate failure
                     }
-                    Logger LOGGER = UTA2.LOGGER; // Use the mod's logger
-                    LOGGER.info("Sending message: " + message); // Log the message being sent
+                    UTA2.LOGGER.info("Sending message: {}", message); // Use the mod's logger log the message being sent
 
                     // Create structured message
                     Payload payload = new Payload();
@@ -39,7 +38,7 @@ public class SendWsCommand implements ICommand {
 
                     context.getSource().sendMessage(Text.literal("Message sent: " + message).withColor(0x00FF00));
                   } catch (Exception e) {
-                    e.printStackTrace();
+                    UTA2.LOGGER.error("send ws command failed", e);
                   }
 
                   return 1; // Return 1 to indicate success

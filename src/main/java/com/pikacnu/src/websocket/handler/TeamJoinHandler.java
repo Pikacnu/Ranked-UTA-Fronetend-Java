@@ -24,7 +24,7 @@ public class TeamJoinHandler extends BaseHandler {
         Integer teamId = team.team() != null ? Integer.parseInt(team.team()) : null;
         for (String name : team.names()) {
           if (name == null || name.isEmpty()) {
-            UTA2.LOGGER.warn("Received empty UUID in team join message for team: " + team.team());
+            UTA2.LOGGER.warn("Received empty UUID in team join message for team: {}", team.team());
             continue;
           }
           /*
@@ -49,7 +49,7 @@ public class TeamJoinHandler extends BaseHandler {
           if (holder != null && objective != null) {
             scoreboardManager.getOrCreateScore(holder, objective).setScore(teamId);
           } else {
-            UTA2.LOGGER.warn("No ScoreHolder or objective found for UUID: " + name + " in team join message");
+            UTA2.LOGGER.warn("No ScoreHolder or objective found for UUID: {} in team join message", name);
           }
         }
       }

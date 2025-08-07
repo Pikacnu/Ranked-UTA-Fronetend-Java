@@ -29,7 +29,7 @@ public class RequestDataHandler extends BaseHandler {
         .orElse(null);
 
     if (target != null) {
-      UTA2.LOGGER.info("Found task for action: " + target.action + " with function " + target.function);
+      UTA2.LOGGER.info("Found task for action: {} with function {}", target.action, target.function);
       try {
         String functionString = target.function.toString() + " " + payload.data.toString();
 
@@ -37,11 +37,11 @@ public class RequestDataHandler extends BaseHandler {
             .parse(functionString, server.getCommandSource().withLevel(2));
         server.getCommandManager().execute(parsedResult, functionString);
       } catch (Exception e) {
-        UTA2.LOGGER.error("Error executing task function: " + e.getMessage());
+        UTA2.LOGGER.error("Error executing task function: {}", e.getMessage());
       }
       WebSocketClient.taskQueue.remove(target); // Remove task after execution
     } else {
-      UTA2.LOGGER.warn("No task found for action: " + requestTarget);
+      UTA2.LOGGER.warn("No task found for action: {}", requestTarget);
     }
   }
 

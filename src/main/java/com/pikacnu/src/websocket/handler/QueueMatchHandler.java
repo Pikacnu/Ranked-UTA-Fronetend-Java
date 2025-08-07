@@ -38,7 +38,7 @@ public class QueueMatchHandler extends BaseHandler {
         });
       });
 
-      UTA2.LOGGER.info("Received QUEUE_MATCH action: " + action);
+      UTA2.LOGGER.info("Received QUEUE_MATCH action: {}", action);
       // Handle queue logic here, e.g., add to queue, remove from queue, etc.
     } else {
       UTA2.LOGGER.error("Received QUEUE_MATCH message with invalid payload");

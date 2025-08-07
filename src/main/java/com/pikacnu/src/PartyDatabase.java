@@ -349,11 +349,11 @@ public class PartyDatabase {
     }
     PlayerData inviter = PlayerDatabase.getPlayerData(inviterUuid);
     PlayerData targetPlayer = PlayerDatabase.getPlayerData(targetUuid);
-    if (Math.abs(inviter.score - targetPlayer.score) > 300) {
-      return PartyResultMessage.PLAYER_SCORE_NOT_WITHIN_RANGE; // Player's score is not within the acceptable range
-    }
     if (inviter == null || targetPlayer == null) {
       return PartyResultMessage.PLAYER_NOT_FOUND; // Inviter or target player not found
+    }
+    if (Math.abs(inviter.score - targetPlayer.score) > 300) {
+      return PartyResultMessage.PLAYER_SCORE_NOT_WITHIN_RANGE; // Player's score is not within the acceptable range
     }
     if (!party.isPartyLeader(inviterUuid)) {
       return PartyResultMessage.PLAYER_NOT_LEADER; // Inviter is not the party leader

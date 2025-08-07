@@ -3,6 +3,7 @@ package com.pikacnu.src.commands;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import net.minecraft.command.argument.NbtPathArgumentType;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
@@ -32,7 +33,7 @@ public class SendDataCommand implements ICommand {
 
                             Object[] nbtResult = StorageNbtHelper
                                 .getStorageNbtByPath(context.getSource().getServer(), storage, nbtData).stream()
-                                .map(nbtElement -> nbtElement.toString()).toArray(Object[]::new);
+                                .map(NbtElement::toString).toArray(Object[]::new);
 
                             // Create storage data object
                             StorageData storageData = new StorageData(storage, "data", nbtResult);
@@ -42,11 +43,9 @@ public class SendDataCommand implements ICommand {
 
                               Payload payload = new Payload();
                               payload.data = storageData;
-                              Message wsMessage = new Message(Action.fromString(type),
-                                  WebSocketClient.serverSessionId, payload);
-                              WebSocketClient.sendMessage(wsMessage);
+                              WebSocketClient.sendMessage(new Message(Action.fromString(type), WebSocketClient.serverSessionId, payload));
                             } catch (Exception e) {
-                              UTA2.LOGGER.error("Failed to send storage data event!", e.getStackTrace().toString());
+                              UTA2.LOGGER.error("Failed to send storage data event!", e);
                               context.getSource().sendError(
                                   Text.literal("Failed to send storage data event!").withColor(0xFF0000));
                               return 0; // Return 0 to indicate failure
@@ -55,9 +54,8 @@ public class SendDataCommand implements ICommand {
                             context.getSource().sendMessage(Text
                                 .literal("Storage data event sent successfully!").withColor(0x00FF00));
                           } catch (Exception e) {
-                            e.printStackTrace();
-                            context.getSource().sendError(
-                                Text.literal("Failed to send storage data event!").withColor(0xFF0000));
+                            context.getSource().sendError(Text.literal("Failed to send storage data event!").withColor(0xFF0000));
+                            UTA2.LOGGER.error("Failed to send storage data event!", e);
                           }
                           return 1; // Return 1 to indicate success
                         })))));

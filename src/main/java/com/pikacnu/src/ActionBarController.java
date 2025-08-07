@@ -27,7 +27,7 @@ public class ActionBarController {
 
   }
 
-  private static ArrayList<ActionBarData> actionBarQueue = new ArrayList<>();
+  private static final ArrayList<ActionBarData> actionBarQueue = new ArrayList<>();
   private static MinecraftServer server;
 
   public static void initialize(MinecraftServer serverInstance) {

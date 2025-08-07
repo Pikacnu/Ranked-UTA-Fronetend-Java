@@ -58,14 +58,15 @@ public class QueueCommand implements ICommand {
                     PartyData party = PartyDatabase.getPartyData(context.getSource().getPlayer().getUuidAsString());
                     if (party != null) {
                       party.isInQueue = false;
-                      party.partyMembers.stream().forEach(member -> {
+                      for (PartyDatabase.PartyPlayer member : party.partyMembers)
+                      {
                         PlayerData memberData = PlayerDatabase.getPlayerData(member.uuid);
-                        if (memberData != null) {
-                          memberData.isInQueue = false;
-                          ActionBarController.removeActionBarMessage(member.uuid);
-                          PlayerDatabase.updatePlayerData(memberData);
-                        }
-                      });
+                        if (memberData == null)
+                          continue;
+                        memberData.isInQueue = false;
+                        ActionBarController.removeActionBarMessage(member.uuid);
+                        PlayerDatabase.updatePlayerData(memberData);
+                      }
                       PartyDatabase.updatePartyData(party);
                       if (party.partyMembers.size() == 1) {
                         party.disbandParty();

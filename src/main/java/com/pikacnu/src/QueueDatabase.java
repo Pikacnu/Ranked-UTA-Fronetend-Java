@@ -23,7 +23,7 @@ public class QueueDatabase {
     public QueueType queueType;
   }
 
-  private static ArrayList<QueueDataEntry> QueueData = new ArrayList<>();
+  private static final ArrayList<QueueDataEntry> QueueData = new ArrayList<>();
 
   private static void updateQueueDataToServer(int partyId, QueueType queueType, String executorUuid) {
     Payload payload = new Payload();
@@ -39,7 +39,7 @@ public class QueueDatabase {
     if (queueType == QueueType.leave) {
       PartyData party = PartyDatabase.getPartyData(partyId);
       if (party == null) {
-        UTA2.LOGGER.error("Party with ID " + partyId + " does not exist.");
+        UTA2.LOGGER.error("Party with ID {} does not exist.", partyId);
       }
       removeQueueData(partyId);
     } else {
@@ -52,7 +52,7 @@ public class QueueDatabase {
     QueueDataEntry entry = new QueueDataEntry();
     entry.partyId = partyId;
     if (!PartyDatabase.isPartyExists(partyId)) {
-      UTA2.LOGGER.error("Party with ID " + partyId + " does not exist.");
+      UTA2.LOGGER.error("Party with ID {} does not exist.", partyId);
     }
     entry.queueType = queueType;
     QueueData.add(entry);
