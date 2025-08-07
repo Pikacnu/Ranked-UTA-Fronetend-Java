@@ -51,7 +51,7 @@ public class MapChooseCommand implements ICommand
 				return 0;
 			}
 
-			return 1; // Return 1 to indicate success
+			return SINGLE_SUCCESS; // Return 1 to indicate success
 		}
 	}
 }

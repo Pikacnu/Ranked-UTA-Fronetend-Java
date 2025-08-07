@@ -1,7 +1,12 @@
 package com.pikacnu.src.commands;
 
+import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.pikacnu.UTA2;
 import net.minecraft.command.argument.EntityArgumentType;
+import net.minecraft.entity.Entity;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
@@ -32,115 +37,144 @@ public class PlayerKilledCommand implements ICommand {
                           return builder.buildFuture();
                         })
                         .then(CommandManager.argument("attacker", EntityArgumentType.player())
-                            .executes(context -> {
-                              try {
-                                // Get the arguments
-                                String target = EntityArgumentType.getEntity(context, "attack_target").getUuid()
-                                    .toString();
-                                String attackerType = StringArgumentType.getString(context, "attacker_type");
-                                String attacker;
-                                try {
-                                  attacker = EntityArgumentType.getEntity(context, "attacker").getUuidAsString();
-                                } catch (Exception e) {
-                                  attacker = "none"; // Default to "none" if attacker not found
-                                }
-
-                                if (attacker == null || attacker.isEmpty()) {
-                                  context.getSource().sendError(
-                                      Text.literal("Attacker cannot be empty!").withColor(0xFF0000));
-                                  return 0; // Return 0 to indicate failure
-                                }
-
-                                try {
-                                  KillType.fromString(attackerType); // Validate attacker type
-                                } catch (IllegalArgumentException e) {
-                                  context.getSource().sendError(
-                                      Text.literal("Invalid attacker type!").withColor(0xFF0000));
-                                  return 0;
-                                }
-
-                                // Create kill object
-                                Kill killData = new Kill(target, KillType.fromString(attackerType), attacker);
-
-                                // Send the kill data
-                                Payload payload = new Payload();
-                                payload.data = killData;
-                                Message wsMessage = new Message(Action.kill, WebSocketClient.serverSessionId, payload);
-                                WebSocketClient.sendMessage(wsMessage);
-
-                                context.getSource().sendMessage(Text
-                                    .literal("Player killed event sent successfully!").withColor(0x00FF00));
-                              } catch (Exception e) {
-                                e.printStackTrace();
-                                context.getSource().sendError(
-                                    Text.literal("Failed to send player killed event!").withColor(0xFF0000));
-                              }
-                              return 1; // Return 1 to indicate success
-                            })
+                            .executes(new AttackerArgument())
                             .then(
-                                CommandManager.argument("assists", EntityArgumentType.players()).executes(context -> {
-                                  try {
-                                    // Get the arguments
-                                    String target = EntityArgumentType.getEntity(context, "attack_target")
-                                        .getUuid().toString();
-                                    String attackerType = StringArgumentType.getString(context, "attacker_type");
-                                    String attacker = null;
+                                CommandManager.argument("assists", EntityArgumentType.players()).executes(new AssistsArgument()))))));
+  }
 
-                                    try {
-                                      attacker = EntityArgumentType.getEntity(context, "attacker").getUuidAsString();
-                                    } catch (Exception e) {
-                                      attacker = "none"; // Default to "none" if attacker not found
-                                    } finally {
-                                      if (attacker == null || attacker.isEmpty()) {
-                                        context.getSource().sendError(
-                                            Text.literal("Attacker cannot be empty!").withColor(0xFF0000));
-                                        return 0; // Return 0 to indicate failure
-                                      }
-                                    }
+  private static class AttackerArgument implements Command<ServerCommandSource>
+  {
+    @Override
+    public int run(CommandContext<ServerCommandSource> context) throws CommandSyntaxException
+    {
+      try
+      {
+        // Get the arguments
+        String target = EntityArgumentType.getEntity(context, "attack_target").getUuid().toString();
+        String attackerType = StringArgumentType.getString(context, "attacker_type");
+        String attacker;
+        try
+        {
+          attacker = EntityArgumentType.getEntity(context, "attacker").getUuidAsString();
+        }
+        catch (Exception e)
+        {
+          attacker = "none"; // Default to "none" if attacker not found
+        }
 
-                                    String assistsInput = null;
+        if (attacker == null || attacker.isEmpty())
+        {
+          context.getSource().sendError(Text.literal("Attacker cannot be empty!").withColor(0xFF0000));
+          return 0; // Return 0 to indicate failure
+        }
 
-                                    try {
-                                      assistsInput = EntityArgumentType.getPlayers(context, "assists").stream()
-                                          .map(player -> player.getUuidAsString()).reduce((a, b) -> a + "," + b)
-                                          .orElse("none");
-                                    } catch (Exception e) {
-                                      assistsInput = "none"; // Default to "none" if no assists found
-                                    } finally {
-                                      if (assistsInput == null || assistsInput.isEmpty()) {
-                                        context.getSource().sendError(
-                                            Text.literal("Assists cannot be empty!").withColor(0xFF0000));
-                                        return 0; // Return 0 to indicate failure
-                                      }
-                                    }
+        KillType killType;
+        try
+        {
+          killType = KillType.fromString(attackerType); // Validate attacker type
+        }
+        catch (IllegalArgumentException e)
+        {
+          context.getSource().sendError(Text.literal("Invalid attacker type!").withColor(0xFF0000));
+          return 0;
+        }
 
-                                    try {
-                                      KillType.fromString(attackerType); // Validate attacker type
-                                    } catch (IllegalArgumentException e) {
-                                      context.getSource().sendError(
-                                          Text.literal("Invalid attacker type!").withColor(0xFF0000));
-                                      return 0;
-                                    }
+        // Create kill object
+        Kill killData = new Kill(target, killType, attacker);
 
-                                    // Create kill object
-                                    Kill killData = new Kill(target,
-                                        KillType.fromString(attackerType), attacker, assistsInput);
+        // Send the kill data
+        Payload payload = new Payload();
+        payload.data = killData;
+        Message wsMessage = new Message(Action.kill, WebSocketClient.serverSessionId, payload);
+        WebSocketClient.sendMessage(wsMessage);
 
-                                    // Send the kill data
-                                    Payload payload = new Payload();
-                                    payload.data = killData;
-                                    Message wsMessage = new Message(Action.kill, WebSocketClient.serverSessionId,
-                                        payload);
-                                    WebSocketClient.sendMessage(wsMessage);
+        context.getSource().sendMessage(Text
+                .literal("Player killed event sent successfully!").withColor(0x00FF00));
+      }
+      catch (Exception e)
+      {
+        context.getSource().sendError(Text.literal("Failed to send player killed event!").withColor(0xFF0000));
+        UTA2.LOGGER.error("Failed to send player killed event!", e);
+      }
+      return SINGLE_SUCCESS; // Return 1 to indicate success
+    }
+  }
 
-                                    context.getSource().sendMessage(Text
-                                        .literal("Player killed event sent successfully!").withColor(0x00FF00));
-                                  } catch (Exception e) {
-                                    e.printStackTrace();
-                                    context.getSource().sendError(
-                                        Text.literal("Failed to send player killed event!").withColor(0xFF0000));
-                                  }
-                                  return 1; // Return 1 to indicate success
-                                }))))));
+  public static class AssistsArgument implements Command<ServerCommandSource>
+  {
+    @Override
+    public int run(CommandContext<ServerCommandSource> context) throws CommandSyntaxException
+    {
+      try
+      {
+        // Get the arguments
+        String target = EntityArgumentType.getEntity(context, "attack_target").getUuid().toString();
+        String attackerType = StringArgumentType.getString(context, "attacker_type");
+        String attacker;
+
+        try
+        {
+          attacker = EntityArgumentType.getEntity(context, "attacker").getUuidAsString();
+        }
+        catch (Exception e)
+        {
+          attacker = "none"; // Default to "none" if attacker not found
+        }
+        if (attacker == null || attacker.isEmpty())
+        {
+          context.getSource().sendError( Text.literal("Attacker cannot be empty!").withColor(0xFF0000));
+          return 0; // Return 0 to indicate failure
+        }
+
+        String assistsInput;
+        try
+        {
+          assistsInput = EntityArgumentType.getPlayers(context, "assists")
+                  .stream()
+                  .map(Entity::getUuidAsString)
+                  .reduce((a, b) -> a + "," + b)
+                  .orElse("none");
+        }
+        catch (Exception e)
+        {
+          assistsInput = "none"; // Default to "none" if no assists found
+        }
+        if (assistsInput.isEmpty())
+        {
+          context.getSource().sendError( Text.literal("Assists cannot be empty!").withColor(0xFF0000));
+          return 0; // Return 0 to indicate failure
+        }
+
+        KillType killType;
+        try
+        {
+          killType = KillType.fromString(attackerType); // Validate attacker type
+        }
+        catch (IllegalArgumentException e)
+        {
+          context.getSource().sendError(
+                  Text.literal("Invalid attacker type!").withColor(0xFF0000));
+          return 0;
+        }
+
+        // Create kill object
+        Kill killData = new Kill(target, killType, attacker, assistsInput);
+
+        // Send the kill data
+        Payload payload = new Payload();
+        payload.data = killData;
+        Message wsMessage = new Message(Action.kill, WebSocketClient.serverSessionId,
+                payload);
+        WebSocketClient.sendMessage(wsMessage);
+
+        context.getSource().sendMessage(Text.literal("Player killed event sent successfully!").withColor(0x00FF00));
+      }
+      catch (Exception e)
+      {
+        context.getSource().sendError(Text.literal("Failed to send player killed event!").withColor(0xFF0000));
+        UTA2.LOGGER.error("Failed to send player killed event!", e);
+      }
+      return SINGLE_SUCCESS; // Return 1 to indicate success
+    }
   }
 }

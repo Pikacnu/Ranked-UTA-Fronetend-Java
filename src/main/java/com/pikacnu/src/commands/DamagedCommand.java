@@ -37,7 +37,7 @@ public class DamagedCommand implements ICommand {
 	private static class ExecuteCommand implements Command<ServerCommandSource> {
 		@Override
 		public int run(CommandContext<ServerCommandSource> context) {
-			return 1;
+			return SINGLE_SUCCESS;
 			// Statistics are considered unnecessary, so commented out but not deleted for
 			// future use
 			/*

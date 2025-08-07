@@ -62,8 +62,7 @@ public class PlayerSettingsDatabase {
 
   public static void getPlayerSettingsFromServer(String uuid) {
     Payload payload = new Payload();
-    PlayerData playerData = new PlayerData(uuid);
-    payload.player = playerData;
+    payload.player = new PlayerData(uuid);
     WebSocketClient.sendMessage(new Message(Action.get_player_settings, payload));
   }
 }
